@@ -1,1 +1,1 @@
-web: flask db upgrade; gunicorn robotstat:app --preload
+web: flask db upgrade; gunicorn main:app --preload
