@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% import "macros/_main_macros.html" as m %}
+
+{% block content %}
+<div class="row">
+  <div class="col-sm-4"></div>
+  <div class="col-sm-4">
+    <div class="page-header text-center">
+        <h3>Вход в систему</h3>
+    </div>
+      <form action="" method="post" class="form bg-light">
+              {{form.csrf_token}}
+              {{m.render_field(form.username)}}
+              {{m.render_field(form.password)}}
+              <div class="form-group">
+                      {{ form.remember_me.label }}
+                      {{ form.remember_me(class='mx-3') }}
+                  </div>
+              <p>
+                Забыли пароль?
+                <a href="{{url_for('auth.reset_password_request')}}"> Нажмите ссылку для сброса пароля</a>
+              </p>
+              {{form.submit(class='btn btn-primary')}}
+              <p>
+                <a href="{{url_for('auth.registration')}}">Для регистрации в системе перейдите по ссылке</a>
+              </p>
+      </form>
+  </div>
+  <div class="col-sm-4"></div>
+</div>
+{% endblock %}

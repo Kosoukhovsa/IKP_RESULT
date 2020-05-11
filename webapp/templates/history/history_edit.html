@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% import "history/_HistoryForms.html" as forms %}
+{% block content %}
+<div class="card">
+  <div class="card-header m-0">
+    <h5>
+      История болезни {{history.hist_number}}
+    </h5>
+    <ul class="nav nav-pills card-header-pills">
+      <li class="nav-item">
+        {% if pill == '1' %}
+          <a class="nav-link active"  data-toggle="pill" href="#passport">Паспортная часть</a>
+        {% else %}
+          <a class="nav-link"  data-toggle="pill" href="#passport">Паспортная часть</a>
+        {% endif %}
+      </li>
+      {% if h != '0' %}
+      <li class="nav-item">
+        {% if pill == '2' %}
+          <a class="nav-link active" data-toggle="pill" href="#first">Первичное обращение</a>
+        {% else %}
+          <a class="nav-link" data-toggle="pill" href="#first">Первичное обращение</a>
+        {% endif %}
+      </li>
+      <li class="nav-item">
+        {% if pill == '3' %}
+          <a class="nav-link active" data-toggle="pill" href="#diagnoses">Диагнозы</a>
+        {% else %}
+          <a class="nav-link" data-toggle="pill" href="#diagnoses">Диагнозы</a>
+        {% endif %}
+      </li>
+      <li class="nav-item">
+        {% if pill == '4' %}
+          <a class="nav-link active" data-toggle="pill" href="#ambulance">Амбулаторные приемы</a>
+        {% else %}
+          <a class="nav-link" data-toggle="pill" href="#ambulance">Амбулаторные приемы</a>
+        {% endif %}
+      </li>
+      <li class="nav-item">
+        {% if pill == '5' %}
+          <a class="nav-link active" data-toggle="pill" href="#hospital">Госпитализации</a>
+        {% else %}
+          <a class="nav-link" data-toggle="pill" href="#hospital">Госпитализации</a>
+        {% endif %}
+      </li>
+      {% endif %}
+    </ul>
+  </div>
+
+  <div class="card-body">
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+      <!-- Паспотрная часть-->
+      {% if pill == '1' %}
+        <div class="tab-pane active mx-0" id="passport">
+          {{forms.HistoryMainForm(HistoryMainForm, h)}}
+        </div>
+      {% else %}
+        <div class="tab-pane fade mx-0" id="passport">
+          {{forms.HistoryMainForm(HistoryMainForm, h)}}
+        </div>
+      {% endif %}
+
+      <!-- Первичное обращение-->
+        {% if pill == '2' %}
+          <div class="tab-pane active mx-0" id="first">
+            {{forms.IndicatorsForm(IndicatorsForm, h, history_event_id, items, pill)}}
+          </div>
+        {% else %}
+          <div class="tab-pane fade mx-0" id="first">
+            {{forms.IndicatorsForm(IndicatorsForm, h, history_event_id, items, pill)}}
+          </div>
+        {% endif %}
+
+        <!-- Диагнозы-->
+        {% if pill == '3' %}
+          <div class="tab-pane active mx-0" id="diagnoses">
+            {{forms.HistoryDiagnosForm(HistoryMainDiagnosForm, HistoryOtherDiagnosForm, diagnoses_items, h, pill)}}
+          </div>
+        {% else %}
+          <div class="tab-pane fade mx-0" id="diagnoses">
+            {{forms.HistoryDiagnosForm(HistoryMainDiagnosForm, HistoryOtherDiagnosForm, diagnoses_items, h, pill)}}
+          </div>
+        {% endif %}
+
+      <!-- Амбулаторное посещение-->
+      {% if pill == '4' %}
+        <div class="tab-pane active" id="ambulance">
+          {{forms.AmbulanceListForm(h,ambulance_events, HistioryNewAmbulanceForm)}}
+        </div>
+      {% else %}
+        <div class="tab-pane fade" id="ambulance">
+          {{forms.AmbulanceListForm(h,ambulance_events, HistioryNewAmbulanceForm)}}
+        </div>
+      {% endif %}
+
+      <!-- Госпитализация-->
+      {% if pill == '5' %}
+        <div class="tab-pane active" id="hospital">
+          {{forms.HospitalListForm(h, hospital_events, NewHospitalForm)}}
+        </div>
+      {% else %}
+        <div class="tab-pane fade" id="hospital">
+          {{forms.HospitalListForm(h, hospital_events, NewHospitalForm)}}
+        </div>
+      {% endif %}
+
+
+        <div class="tab-pane fade" id="hospital">
+            Госпитализации
+        </div>
+        </div>
+      </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  $(document).ready(function(){
+    $("#snils").mask("999-999-999 99", {placeholder: 'XXX-XXX-XXX XX'});
+  });
+</script>
+{% endblock %}

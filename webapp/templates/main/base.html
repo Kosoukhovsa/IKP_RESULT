@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title><ИКП></title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  </head>
+<body>
+{% include 'navbar.html' %}
+{% include 'messages.html' %}
+{% block content %}
+  {# содержимое приложения должно быть представлено в блоке content #}
+{% endblock %}
+<script src="{{ url_for('static', filename='js/vendor/jquery.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/vendor/popper.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/vendor/bootstrap.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/moment.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/vendor/jquery.maskedinput.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/vendor/jquery.maskedinput.js') }}"></script>
+{% block scripts %}
+{% endblock %}
+</body>
+</html>

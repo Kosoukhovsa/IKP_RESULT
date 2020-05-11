@@ -1,0 +1,235 @@
+{% import "macros/_main_macros.html" as m %}
+
+{% macro PostOperationsSubForm1(PostOperationsSubForm1, history, h_e, items, pill) %}
+<form class="form-inline bg-light" method="POST" action="{{url_for('history.save_indicators', h=history.id, h_e=h_e, pill=pill)}}">
+  <input id="indicator_group" type = "hidden" class="form-control" name="indicator_group" type="number" value=1>
+      {{PostOperationsSubForm1.csrf_token()}}
+      <div class="col-3">
+        {{ m.render_field(PostOperationsSubForm1.indicators_date_begin, disabled=True) }}
+      </div>
+      <div class="col-3">
+        {{PostOperationsSubForm1.save_indicators(class='btn btn-primary')}}
+      </div>
+<hr>
+
+    <table class="table">
+      <thead class="thead-light">
+        <tr>
+          <th scope="col">Показатель</th>
+          <th scope="col">Значение</th>
+          <th scope="col">Ед измерения</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for i in items %}
+        <tr>
+          <input id="indicator_id" type = "hidden" class="form-control" name="indicator_id" type="number" value={{i.id}}>
+          <td>{{i.description}}</td>
+          <td>
+            {% if i.is_calculated %}
+            <input id="num_value" class="form-control" name="num_value" type="number" step="1" value={{i.num_value}} readonly>
+            {% else %}
+            <input id="num_value" class="form-control" name="num_value" type="number" step="1" value={{i.num_value}}>
+            {% endif %}
+          </td>
+          <td>
+            <a>{{i.unit}}</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+</form>
+{% endmacro %}
+
+{% macro PostOperationsSubForm2(PostOperationsSubForm2, history, h_e, items, pill) %}
+<form class="form-inline bg-light" method="POST" action="{{url_for('history.save_indicators', h=history.id, h_e=h_e, pill=2)}}">
+  <input id="indicator_group" type = "hidden" class="form-control" name="indicator_group" type="number" value=8>
+  {{PostOperationsSubForm2.csrf_token()}}
+  <div class="col-3">
+    {{ m.render_field(PostOperationsSubForm2.indicators_date_begin, disabled=True) }}
+  </div>
+  <div class="col-3">
+    {{PostOperationsSubForm2.save_indicators(class='btn btn-primary')}}
+  </div>
+
+    <table class="table">
+      <thead class="thead-light">
+        <tr>
+          <th scope="col">Показатель</th>
+          <th scope="col">Значение</th>
+          <th scope="col">Ед измерения</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for i in items %}
+        <tr>
+          <input id="indicator_id" type = "hidden" class="form-control" name="indicator_id" type="number" value={{i.id}}>
+          <td>{{i.description}}</td>
+          <td>
+            {% if i.is_calculated %}
+              <input id="num_value" class="form-control" name="num_value" type="number" min = 0 step = "any" value={{i.num_value}} readonly>
+            {% else %}
+              <input id="num_value" class="form-control" name="num_value" type="number" min = 0 step = "any" value={{i.num_value}}>
+            {% endif %}
+          </td>
+          <td>
+            <a>{{i.unit}}</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+</form>
+{% endmacro %}
+
+{% macro PostOperationsSubForm3(PostOperationsSubForm3, history, h_e, items, pill) %}
+<form class="form-inline bg-light" method="POST" action="{{url_for('history.save_indicators', h=history.id, h_e=h_e, pill=3)}}">
+  <input id="indicator_group" type = "hidden" class="form-control" name="indicator_group" type="number" value=3>
+  {{PostOperationsSubForm3.csrf_token()}}
+  <div class="col-3">
+    {{ m.render_field(PostOperationsSubForm3.indicators_date_begin, disabled=True) }}
+  </div>
+  <div class="col-3">
+    {{PostOperationsSubForm3.save_indicators(class='btn btn-primary')}}
+  </div>
+  <div>
+    <table class="table">
+      <thead class="thead-light">
+        <tr>
+          <th scope="col">Показатель</th>
+          <th scope="col">Значение</th>
+          <th scope="col">Норма</th>
+          <th scope="col">Выход за пределы нормы</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for i in items %}
+        <tr>
+          <input id="indicator_id" type = "hidden" class="form-control" name="indicator" type="number" value={{i.indicator}}>
+          <td>{{i.description}}</td>
+          <td>
+            <input id="num_value_1" class="form-control" name="num_value_1" type="number" step="1" value={{i.num_value_1}}>
+          </td>
+          <td>
+            <input id="num_value_2" class="form-control" name="num_value_2" type="number" step="1" value={{i.num_value_2}} readonly>
+          </td>
+          <td>
+            <input id="text_value_3" class="form-control" name="text_value_3" type="text" readonly value={{i.text_value_3}}>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</form>
+{% endmacro %}
+
+{% macro PostOperationsSubForm4(PostOperationsSubForm4, history, h_e, items, pill) %}
+<form class="form-inline bg-light" method="POST" action="{{url_for('history.save_indicators', h=history.id, h_e=h_e, pill=4)}}">
+  <input id="indicator_group" type = "hidden" class="form-control" name="indicator_group" type="number" value=6>
+  {{PostOperationsSubForm4.csrf_token()}}
+  <div class="col-3">
+    {{ m.render_field(PostOperationsSubForm4.indicators_date_begin, disabled=True) }}
+  </div>
+  <div class="col-3">
+    {{PostOperationsSubForm4.save_indicators(class='btn btn-primary')}}
+  </div>
+  <div>
+    <table class="table">
+      <thead class="thead-light">
+        <tr>
+          <th scope="col">Показатель</th>
+          <th scope="col">Значение(угол ротации в гр.)</th>
+          <th scope="col">Норма</th>
+          <th scope="col">Выход за пределы нормы</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for i in items %}
+        <tr>
+          <input id="indicator_id" type = "hidden" class="form-control" name="indicator" type="number" value={{i.indicator}}>
+          <td>{{i.description}}</td>
+          <td>
+            <input id="num_value_1" class="form-control" name="num_value_1" type="number" step="1" value={{i.num_value_1}}>
+          </td>
+          <td>
+            <input id="num_value_2" class="form-control" name="num_value_2" type="number" step="1" value={{i.num_value_2}} readonly>
+          </td>
+          <td>
+            <input id="text_value_3" class="form-control" name="text_value_3" type="text" readonly value={{i.text_value_3}}>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</form>
+{% endmacro %}
+
+{% macro PostOperationsSubForm5(PostOperationsSubForm5, ProfileSubForm1, history, h_e, items, pill) %}
+    <table class="table">
+      <thead class="thead-light">
+        <tr>
+          <th scope="col">Анкета</th>
+          <th scope="col">Результат</th>
+          <th scope="col">Дата заполнения</th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for i in items %}
+        <tr>
+          <td>{{i.description}}</td>
+          {% if i.empty == 1 %}
+            <td><span class="badge badge-warning">{{i.result}}</span></td>
+          {% else %}
+            <td><span class="badge badge-info">{{i.result}}</span></td>
+          {% endif %}
+          <td>{{i.date}}</td>
+          <td>
+            <a class="btn btn-success" data-toggle="modal" data-target="#profile_modal{{i.profile_id}}">Редактировать</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Форма анкеты 1 -->
+    <div class="modal fade" id="profile_modal1" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Шкала интенсивности боли</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id='profile_form1' method="POST" action="{{url_for('history.profile_save', profile_id=1, history_id=history.id, history_event_id=h_e)}}">
+              {{ProfileSubForm1.csrf_token()}}
+              {{ m.render_field(ProfileSubForm1.date_created) }}
+              {{ m.render_field(ProfileSubForm1.num_value) }}
+              {{ProfileSubForm1.submit(class='btn btn-primary')}}
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+{% endmacro %}
+
+{% block scripts %}
+<script>
+function save_form1(modal, profile_form, history_id, history_event_id){
+  $.post('/history/profile_save', data=$(profile_form).serialize()).allways(function(responce){
+    $(modal).modal('hide');
+    location.reload();
+  });
+}
+</script>
+{% endblock %}

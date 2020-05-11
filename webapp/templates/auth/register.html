@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% import "macros/_main_macros.html" as m %}
+{% block content %}
+<div class="row">
+  <div class="col-sm-4"></div>
+  <div class="col-sm-4">
+    <div class="page-header text-center">
+        <h3>Регистрация нового пользователя</h3>
+    </div>
+      <form action="" method="post" class="form bg-light">
+              {{form.csrf_token}}
+              {{m.render_field(form.username)}}
+              {{m.render_field(form.email)}}
+              {{m.render_field(form.clinic)}}
+              {{m.render_field(form.password1)}}
+              {{m.render_field(form.password2)}}
+              {{form.submit(class="btn btn-primary")}}
+      </form>
+  </div>
+  <div class="col-sm-4"></div>
+</div>
+{% endblock %}

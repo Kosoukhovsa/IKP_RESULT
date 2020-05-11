@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <div class="card-header m-0">
+    Справочники системы
+  </div>
+  <div class="card-body">
+        <!--Панель присвоения полномочий-->
+        <!--Заголовок формы-->
+        <form class="form p-2 text-white bg-secondary" method="post">
+          <div class="row">
+            <div class="col">
+              <a class="btn btn-primary" id='load_all_button' name = "load_all" href="javascript:load_all_dicts();">Загрузить
+                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                <span class="sr-only">Loading...</span>
+              </a>
+            </div>
+            <div class="col">
+              <label for="select_all">Загрузка всех справочников из файла</label>
+            </div>
+          </div>
+        </form>
+        <!--end of заголовок формы-->
+        <div class="row">
+          <div class="col">
+            <!--Таблица-->
+            <table class="table">
+              <thead class="thead-light">
+                <tr>
+                  <th scope="col">Таблица</th>
+                  <th scope="col">Количество записей</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for (t,r) in tables_dict.items() %}
+                <tr>
+                  <td>
+                    <a href="#">{{t}}</a>
+                  </td>
+                  <td>
+                    <a href="#" class="badge badge-info" >{{r}}</a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <!--end of Таблица-->
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+
+      </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function load_all_dicts(){
+    // Делаем кнопку недоступной и отображаем спиннер
+    $('#load_all_button')
+      .prop('disabled',true)
+      .find('.spinner-border').removeClass('d-none');
+      $.post('/admin/dict_load_all')
+      .always(function(response){
+        $('#load_all_button')
+          .prop('disabled',false)
+          .find('.spinner-border').addClass('d-none');
+        location.reload(true)
+    });
+}
+</script>
+{% endblock %}

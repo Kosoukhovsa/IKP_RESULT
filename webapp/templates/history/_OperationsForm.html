@@ -1,0 +1,247 @@
+{% import "macros/_main_macros.html" as m %}
+
+{% macro OperationsSubForm1(OperationsSubForm1, pill) %}
+    <form class="form-inline bg-light justify-content-around" method="POST">
+      {{OperationsSubForm1.csrf_token()}}
+      {{ m.render_field(OperationsSubForm1.doctor_assistant) }}
+      {{ m.render_field(OperationsSubForm1.doctor_surgeon) }}
+      {{ m.render_field(OperationsSubForm1.operation_order) }}
+      <div class="row">
+        <div class="col">
+          {{OperationsSubForm1.submit(class='btn btn-primary')}}
+        </div>
+      </div>
+  </form>
+{% endmacro %}
+
+{% macro OperationsSubForm2(OperationsSubForm2, history, h_e, items, pill) %}
+<form class="form-inline bg-light" method="POST" action="{{url_for('history.save_indicators', h=history.id, h_e=h_e, pill=2)}}">
+  <input id="indicator_group" type = "hidden" class="form-control" name="indicator_group" type="number" value=9>
+      {{OperationsSubForm2.csrf_token()}}
+      <div class="col-3">
+        {{ m.render_field(OperationsSubForm2.operation_date_begin) }}
+      </div>
+      <div class="col-3">
+        {{OperationsSubForm2.save_indicators(class='btn btn-primary')}}
+      </div>
+<hr>
+
+    <table class="table">
+      <thead class="thead-light">
+        <tr>
+          <th scope="col">Показатель</th>
+          <th scope="col">Значение</th>
+          <th scope="col">Комментарий</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        {{ m.table_row(field=OperationsSubForm2.anesthesia, indicator_name='Анастезия', indicator_id=77, items=items)}}
+        {{ m.table_row(field=OperationsSubForm2.anesthesia_begin, indicator_name='Начало анестезии', indicator_id=78, items=items)}}
+        {{ m.table_row(field=OperationsSubForm2.anesthesia_end, indicator_name='Окончание анестезии', indicator_id=79, items=items)}}
+        {{ m.table_row(field=OperationsSubForm2.anesthesia_duration, indicator_name='Длительность анастезии (мин)', indicator_id=80, items=items, disabled = True)}}
+        {{ m.table_row(field=OperationsSubForm2.surgical_access, indicator_name='Хирургический доступ', indicator_id=81, items=items)}}
+        {{ m.table_row(field=OperationsSubForm2.operation_specificity, indicator_name='Особенности операции', indicator_id=82, items=items)}}
+        {{ m.table_row(field=OperationsSubForm2.technical_difficulty, indicator_name='Технические трудности', indicator_id=83, items=items)}}
+        {{ m.table_row(field=OperationsSubForm2.intraoperative_blood_loss, indicator_name='Интраоперационные кровопотери (мл)', indicator_id=84, items=items)}}
+        {{ m.table_row(field=OperationsSubForm2.wound_drainage, indicator_name='Дренирование раны', indicator_id=85, items=items)}}
+        {{ m.table_row(field=OperationsSubForm2.amount_of_water, indicator_name='Количество отделяемого по дренажу (мл)', indicator_id=86, items=items)}}
+        {{ m.table_row(field=OperationsSubForm2.duration_drainage, indicator_name='Длительность дренирования (ч)', indicator_id=87, items=items)}}
+        {{ m.table_row(field=OperationsSubForm2.intra_complications, indicator_name='Интраоперационные осложнения', indicator_id=96, items=items)}}
+
+
+      </tbody>
+    </table>
+</form>
+{% endmacro %}
+
+{% macro OperationsSubForm3(OperationsSubForm3, history, h_e, items, pill) %}
+
+<form class="form-inline bg-light" method="POST" action="{{url_for('history.save_indicators', h=history.id, h_e=h_e, pill=3)}}">
+  <input id="indicator_group" type = "hidden" class="form-control" name="indicator_group" type="number" value=10>
+  {{OperationsSubForm3.csrf_token()}}
+  <div class="col-3">
+    {{ m.render_field(OperationsSubForm3.indicators_date) }}
+  </div>
+  <div class="col-3">
+    {{OperationsSubForm3.save_indicators(class='btn btn-primary')}}
+  </div>
+    <table class="table">
+      <thead class="thead-light">
+        <tr>
+          <th scope="col">Член бригады</th>
+          <th scope="col">Реактивная тревожность</th>
+          <th scope="col">Личностная тревожность</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for i in items %}
+        <tr>
+          <input id="indicator_id" type = "hidden" class="form-control" name="indicator" type="number" value={{i.indicator}}>
+          <td>{{i.description}}</td>
+          <td>
+            <input id="num_value_1" class="form-control" name="num_value_1" type="number" step="1" min = 20 max=80 value={{i.num_value_1}}>
+          </td>
+          <td>
+            <input id="num_value_2" class="form-control" name="num_value_2" type="number" step="1" min = 20 max=80 value={{i.num_value_2}}>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+</form>
+{% endmacro %}
+
+{% macro OperationsSubForm4(OperationsSubForm4, history, h_e, operation, items, pill) %}
+<form class="form bg-light" method="POST">
+  {{OperationsSubForm4.csrf_token()}}
+  <div class="form-row">
+    <div class="col-3">
+      <p class="font-weight-bold mx-1">Начало операции</p>
+      <p>{{operation.time_begin}}</p>
+    </div>
+    <div class="col-3">
+      <p class="font-weight-bold mx-1">Окончание операции</p>
+      <p>{{operation.time_end}}</p>
+    </div>
+    <div class="col-3">
+      <p class="font-weight-bold mx-1">Продолжительность операции мин</p>
+      <p>{{operation.duration_min}}</p>
+    </div>
+    <div class="col-1">
+      <p>{{OperationsSubForm4.save(class='btn btn-primary')}}</p>
+    </div>
+  </div>
+  <div>
+    <table class="table">
+      <thead class="thead-light">
+        <tr>
+          <th scope="col">Показатель</th>
+          <th scope="col">Начало</th>
+          <th scope="col">Окончание</th>
+          <th scope="col">Длительность</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for i in items %}
+        <tr>
+          <input id="id"      type = "hidden" class="form-control" name="id"      type="number" value={{i.id}}>
+          <input id="step_id" type = "hidden" class="form-control" name="step_id" type="number" value={{i.step_id}}>
+          <td>{{i.step_description}}</td>
+          <td>
+            <input id="time_begin" class="form-control" name="time_begin" type="datetime-local" value={{i.time_begin}}>
+          </td>
+          <td>
+            <input id="time_end" class="form-control" name="time_end" type="datetime-local" value={{i.time_end}}>
+          </td>
+          <td>
+            <a>{{i.duration_min}}</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</form>
+{% endmacro %}
+
+{% macro OperationsSubForm5(OperationsSubForm5, history, hospital, h_e, operation, items, pill) %}
+<!-- Послеоперационные наблюдения -->
+<form class="form-inline bg-light border" method="post">
+  {{OperationsSubForm5.csrf_token()}}
+  {{ m.render_field(OperationsSubForm5.event) }}
+  {{OperationsSubForm5.submit(class='btn btn-primary')}}
+</form>
+
+<table class="table">
+  <thead class="thead-light">
+    <tr>
+      <th scope="col">Дата</th>
+      <th scope="col">День после операции</th>
+    </tr>
+  </thead>
+  <tbody>
+     {% for item in items %}
+    <tr>
+
+      <td>
+        <a href="{{ url_for('history.post_operation_edit',
+                              h=history.id,
+                              hospital_id=hospital.id,
+                              operation_id=operation.id,
+                              post_operation_id=item.post_operation_id,
+                              e_type_id=item.e_type_id,
+                              pill=1) }}">{{item.date_begin}}</a>
+      </td>
+      <td>
+        <a>{{item.e_type_description}}</a>
+      </td>
+
+    </tr>
+    {% endfor %}
+
+  </tbody>
+</table>
+
+{% endmacro %}
+
+{% macro OperationsSubForm6(OperationsSubForm6, history, h_e, operation, items, hospital, pill) %}
+<!--Осложнения-->
+<h5>Осложнения</h5>
+<form class="form-inline bg-light border" method="post">
+  {{OperationsSubForm6.csrf_token()}}
+  {{ m.render_field(OperationsSubForm6.complication) }}
+  {{ m.render_field(OperationsSubForm6.date_created) }}
+  {{OperationsSubForm6.submit(class='btn btn-primary')}}
+</form>
+<table class="table">
+  <thead class="thead-light">
+    <tr>
+      <th scope="col">Осложнение</th>
+      <th scope="col">Дата возникновения</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in items %}
+    <tr>
+      <td>{{item.description}}</td>
+      <td>{{item.date_begin}}</td>
+      <td>
+      <a class="btn btn-danger" href="{{ url_for('history.operation_comp_delete', h=history.id, h_e=h_e, operation_id=operation.id, operation_comp_id=item.id, pill=pill) }}">Удалить</a>
+      </td>
+    {% endfor %}
+    </tr>
+  </tbody>
+</table>
+{% endmacro %}
+
+{% macro OperationsSubForm7(OperationsSubForm7, history, h_e, items, pill) %}
+<form class="form-inline bg-light" method="POST" action="{{url_for('history.save_indicators', h=history.id, h_e=h_e, pill=7)}}">
+  <input id="indicator_group" type = "hidden" class="form-control" name="indicator_group" type="number" value=13>
+      {{OperationsSubForm7.csrf_token()}}
+      <div class="col-3">
+        {{ m.render_field(OperationsSubForm7.date_begin) }}
+      </div>
+      <div class="col-3">
+        {{OperationsSubForm7.save_indicators(class='btn btn-primary')}}
+      </div>
+<hr>
+
+    <table class="table">
+      <thead class="thead-light">
+        <tr>
+          <th scope="col">Показатель</th>
+          <th scope="col">Значение</th>
+          <th scope="col">Комментарий</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!--Заключение-->
+        {{ m.table_row(field=OperationsSubForm7.conclusions, indicator_name='Заключение', indicator_id=104, items=items)}}
+        <!--Рекомендации -->
+        {{ m.table_row(field=OperationsSubForm7.recomendations, indicator_name='Рекомендации', indicator_id=105, items=items)}}
+      </tbody>
+    </table>
+</form>
+{% endmacro %}

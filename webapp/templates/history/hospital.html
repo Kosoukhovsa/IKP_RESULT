@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% import "macros/_main_macros.html" as m %}
+{% import "history/_HospitalForm.html" as forms %}
+{% block content %}
+<div class="card">
+  <div class="card-header m-0">
+    <h5>
+      <a href="{{ url_for('history.history_edit', h=h, pill=1) }}">История болезни {{history.hist_number}}</a>
+      / Госпитализация от {{hospital_event.date_begin}}
+    </h5>
+    <ul class="nav nav-pills card-header-pills">
+      <li class="nav-item">
+        {% if pill == '1' %}
+          <a class="nav-link active"  data-toggle="pill" href="#subform1">Общие сведения</a>
+        {% else %}
+          <a class="nav-link"  data-toggle="pill" href="#subform1">Общие сведения</a>
+        {% endif %}
+      </li>
+      {% if h_e != '0' %}
+      <li class="nav-item">
+        {% if pill == '2' %}
+          <a class="nav-link active" data-toggle="pill" href="#subform2">Данные пациента</a>
+        {% else %}
+          <a class="nav-link" data-toggle="pill" href="#subform2">Данные пациента</a>
+        {% endif %}
+      </li>
+      <li class="nav-item">
+        {% if pill == '3' %}
+          <a class="nav-link active" data-toggle="pill" href="#subform3">Данные объективного осмотра</a>
+        {% else %}
+          <a class="nav-link" data-toggle="pill" href="#subform3">Данные объективного осмотра</a>
+        {% endif %}
+      </li>
+      <li class="nav-item">
+        {% if pill == '4' %}
+          <a class="nav-link active" data-toggle="pill" href="#subform4">Рентгенография коленного сустава</a>
+        {% else %}
+          <a class="nav-link" data-toggle="pill" href="#subform4">Рентгенография коленного сустава</a>
+        {% endif %}
+      </li>
+      <li class="nav-item">
+        {% if pill == '5' %}
+          <a class="nav-link active" data-toggle="pill" href="#subform5">Телерентгенография нижних конечностей</a>
+        {% else %}
+          <a class="nav-link" data-toggle="pill" href="#subform5">Телерентгенография нижних конечностей</a>
+        {% endif %}
+      </li>
+      <li class="nav-item">
+        {% if pill == '6' %}
+          <a class="nav-link active" data-toggle="pill" href="#subform6">Опросники</a>
+        {% else %}
+          <a class="nav-link" data-toggle="pill" href="#subform6">Опросники</a>
+        {% endif %}
+      </li>
+      <li class="nav-item">
+        {% if pill == '7' %}
+          <a class="nav-link active" data-toggle="pill" href="#subform7">Результаты лабораторных исследований</a>
+        {% else %}
+          <a class="nav-link" data-toggle="pill" href="#subform7">Результаты лабораторных исследований</a>
+        {% endif %}
+      </li>
+      <li class="nav-item">
+        {% if pill == '8' %}
+          <a class="nav-link active" data-toggle="pill" href="#subform8">Операции</a>
+        {% else %}
+          <a class="nav-link" data-toggle="pill" href="#subform8">Операции</a>
+        {% endif %}
+      </li>
+      {% endif %}
+    </ul>
+  </div>
+  <div class="card-body">
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+      <!-- Амбулаторный прием-->
+      {% if pill == '1' %}
+        <div class="tab-pane active mx-0" id="subform1">
+          {{forms.HospitalSubForm1(HospitalSubForm1, pill)}}
+        </div>
+      {% else %}
+        <div class="tab-pane fade mx-0" id="subform1">
+          {{forms.HospitalSubForm1(HospitalSubForm1, pill)}}
+        </div>
+      {% endif %}
+      <!-- Общие данные пациента-->
+      {% if pill == '2' %}
+        <div class="tab-pane active mx-0" id="subform2">
+          {{forms.HospitalSubForm2(HospitalSubForm2, history, h_e, items[3], pill)}}
+        </div>
+      {% else %}
+        <div class="tab-pane fade mx-0" id="subform2">
+          {{forms.HospitalSubForm2(HospitalSubForm2, history, h_e, items[3], pill)}}
+        </div>
+      {% endif %}
+      <!-- Данные объективного осмотра-->
+      {% if pill == '3' %}
+        <div class="tab-pane active mx-0" id="subform3">
+          {{forms.HospitalSubForm3(HospitalSubForm3, history, h_e, items[0], pill)}}
+        </div>
+      {% else %}
+        <div class="tab-pane fade mx-0" id="subform3">
+          {{forms.HospitalSubForm3(HospitalSubForm3, history, h_e, items[0], pill)}}
+        </div>
+      {% endif %}
+      <!-- Рентгенография коленного сустава-->
+      {% if pill == '4' %}
+        <div class="tab-pane active mx-0" id="subform4">
+          {{forms.HospitalSubForm4(HospitalSubForm4, history, h_e, items[1], pill)}}
+        </div>
+      {% else %}
+        <div class="tab-pane fade mx-0" id="subform4">
+          {{forms.HospitalSubForm4(HospitalSubForm4, history, h_e, items[1], pill)}}
+        </div>
+      {% endif %}
+      <!-- Телерентгенография  -->
+      {% if pill == '5' %}
+        <div class="tab-pane active mx-0" id="subform5">
+          {{forms.HospitalSubForm5(HospitalSubForm5, history, h_e, items[2], pill)}}
+        </div>
+      {% else %}
+        <div class="tab-pane fade mx-0" id="subform5">
+          {{forms.HospitalSubForm5(HospitalSubForm5, history, h_e, items[2], pill)}}
+        </div>
+      {% endif %}
+      <!-- Опросники  -->
+      {% if pill == '6' %}
+        <div class="tab-pane active mx-0" id="subform6">
+          {{forms.HospitalSubForm6(HospitalSubForm6, ProfileSubForm1, ProfileSubForm2, ProfileSubForm3, ProfileSubForm4, ProfileSubForm5, ProfileSubForm6, ProfileSubForm7, ProfileSubForm8, ProfileSubForm9, history, h_e, items[6], pill)}}
+        </div>
+      {% else %}
+        <div class="tab-pane fade mx-0" id="subform6">
+          {{forms.HospitalSubForm6(HospitalSubForm6, ProfileSubForm1, ProfileSubForm2, ProfileSubForm3, ProfileSubForm4, ProfileSubForm5, ProfileSubForm6, ProfileSubForm7, ProfileSubForm8, ProfileSubForm9, history, h_e, items[6], pill)}}
+        </div>
+      {% endif %}
+      <!-- Результаты лабораторных исследований  -->
+      {% if pill == '7' %}
+        <div class="tab-pane active mx-0" id="subform7">
+          {{forms.HospitalSubForm7(HospitalSubForm7, history, h_e, items[5], pill)}}
+        </div>
+      {% else %}
+        <div class="tab-pane fade mx-0" id="subform7">
+          {{forms.HospitalSubForm7(HospitalSubForm7, history, h_e, items[5], pill)}}
+        </div>
+      {% endif %}
+      <!-- Операции  -->
+      {% if pill == '8' %}
+        <div class="tab-pane active mx-0" id="subform8">
+          {{forms.HospitalSubForm8(HospitalSubForm8, history, h_e, items[7], pill)}}
+        </div>
+      {% else %}
+        <div class="tab-pane fade mx-0" id="subform8">
+          {{forms.HospitalSubForm8(HospitalSubForm8, history, h_e, items[7], pill)}}
+        </div>
+      {% endif %}
+
+
+
+        </div>
+
+        </div>
+      </div>
+
+
+{% endblock %}
