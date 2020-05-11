@@ -10,8 +10,9 @@ if os.path.exists(dotenv_path):
     load_dotenv(dotenv_path)
 
 # Создание приложения с выбранной конфигурацией
-env = os.environ.get('APP_CONFIG', default='Development')
-app = create_app('config.%sConfig' % env.capitalize())
+#env = os.environ.get('APP_CONFIG', default='Development')
+#app = create_app('config.%sConfig' % env.capitalize())
+app = create_app(os.getenv('FLASK_CONFIG') or 'DevelopmentConfig')
 register(app)
 
 
