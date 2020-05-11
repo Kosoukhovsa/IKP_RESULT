@@ -9,7 +9,8 @@ from . import db
 def insert_clinic():
     clinic = Clinic.query.get(1)
     if clinic is None:
-        clinic = Clinic('Клинический центр Первого МГМУ им. И.М. Сеченова')
+        clinic = Clinic()
+        clinic.description = 'Клинический центр Первого МГМУ им. И.М. Сеченова'
         db.session.add(clinic)
         db.session.commit()
         click.echo('Clinic {0} Added.'.format(clinic.description))
