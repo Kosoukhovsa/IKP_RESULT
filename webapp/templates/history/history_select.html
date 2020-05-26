@@ -6,6 +6,22 @@
     <h5>{{title}}</h5>
   </div>
   <div class="card-body">
+    <!--  Форма загрузки персональных данных -->
+    <div class="row">
+      <div class="col">
+        <h5>Загрузка персональных данных</h5>
+          <form action="{{ url_for('history.load_personal_data') }}" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+              <label>Выберите файл</label>
+              <div class="custom-file">
+                <input type="file" class="custom-file-input" name="personal_data" id="personal_data">
+                <label class="custom-file-label" for="personal_data">...</label>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Загрузить</button>
+          </form>
+      </div>
+    </div>
         <!--Панель выборки историй болезни-->
         <div class="row">
           <div class="col">
@@ -31,7 +47,8 @@
               <thead class="thead-light">
                 <tr>
                   <th scope="col">№</th>
-                  <th scope="col">Клиника</th>
+                  <th scope="col">ФИО</th>
+                  <th scope="col">СНИЛС</th>
                   <th scope="col">Дата создания</th>
                   <th scope="col">Дата включения в исследование</th>
                   <th scope="col">Дата исключения из исследования</th>
@@ -43,7 +60,8 @@
                   <td>
                     <a href="{{ url_for('.history_edit', h=h.id, pill=1) }}">{{h.hist_number}}</a>
                   </td>
-                  <td>{{h.clinic}}</td>
+                  <td>{{h.fio}}</td>
+                  <td>{{h.snils}}</td>
                   <td>{{h.date_in}}</td>
                   <td>{{h.date_research_in}}</td>
                   <td>{{h.date_research_out}}</td>

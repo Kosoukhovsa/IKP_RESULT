@@ -17,6 +17,7 @@ class HistoryFilterForm(FlaskForm):
     clinic_filter = SelectField('Клиника', coerce = int, validators=[DataRequired()])
     submit_filter = SubmitField('Фильтр')
 
+
     def __init__(self, *args, **kwargs):
         super(HistoryFilterForm, self).__init__(*args, **kwargs)
         self.clinic_filter.choices=[(clinic.id, clinic.description)

@@ -7,6 +7,9 @@
     <h5>
       <a href="{{ url_for('history.history_edit', h=h, pill=1) }}">История болезни {{history.hist_number}}</a>
       / Амбулаторный прием перед госпитализацией
+      {% if personal_data %}
+        / {{ personal_data.fio}} / {{personal_data.snils}}
+      {% endif %}
     </h5>
     <ul class="nav nav-pills card-header-pills">
       <li class="nav-item">

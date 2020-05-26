@@ -32,6 +32,9 @@ items = items, pill = pill
       {%  elif post_operation.event_id == 8 %}
       / Послеоперационные наблюдения: 7 сутки
       {% endif %}
+      {% if personal_data %}
+        / {{ personal_data.fio}} / {{personal_data.snils}}
+      {% endif %}
 
     </h5>
     <ul class="nav nav-pills card-header-pills">

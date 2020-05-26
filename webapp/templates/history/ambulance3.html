@@ -11,6 +11,9 @@
       {% elif event.id == 10 %}
       / Амбулаторный прием через 6 месяцев
       {% endif %}
+      {% if personal_data %}
+        / {{ personal_data.fio}} / {{personal_data.snils}}
+      {% endif %}
     </h5>
     <ul class="nav nav-pills card-header-pills">
       <li class="nav-item">

@@ -22,7 +22,7 @@ class FileEngine():
     def GetDictList():
         path_name = os.path.join(basedir, 'Dictionaries.xlsx')
         try:
-            f = pd.read_excel(path_name, 'Dict_list')            
+            f = pd.read_excel(path_name, 'Dict_list')
         except:
             return {}
         else:

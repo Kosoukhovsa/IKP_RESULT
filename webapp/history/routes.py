@@ -1,4 +1,5 @@
 from flask import render_template, redirect, url_for, flash, request, session, Blueprint, jsonify
+from werkzeug.utils import secure_filename
 from flask_login import login_required
 from .forms import HistoryFilterForm, HistoryMainForm, IndicatorsForm, HistoryMainDiagnosForm,\
                    HistoryOtherDiagnosForm, HistioryNewAmbulanceForm, NewHospitalForm,\
@@ -15,7 +16,7 @@ from .forms import HistoryFilterForm, HistoryMainForm, IndicatorsForm, HistoryMa
 
 
 from .. import db
-from .models import History, Diagnose, Patient, HistoryEvent, Operation, IndicatorValue, OperationLog, \
+from .models import History, Patient, Diagnose, Patient, HistoryEvent, Operation, IndicatorValue, OperationLog, \
                     OperationComp
 from ..main.models import Clinic, Indicator, Event, DiagnoseItem, Prosthesis, OperationStep, ProfileSection,\
                             ProfileSectionResponse, Profile
@@ -28,11 +29,43 @@ from . import CreateHistory, AddMainDiagnos, AddOtherDiagnos, FillHistoryForm, U
 
 
 from datetime import datetime, timedelta
+import tempfile
+import pandas as pd
+import os
 
 history_blueprint = Blueprint('history',
                             __name__,
-                            template_folder='..templates/history'
-)
+                            template_folder='..templates/history')
+
+tempdirectory = tempfile.gettempdir()
+
+# Загрузка персональной информации из файла
+@history_blueprint.route('/load_personal_data', methods = ['GET','POST'])
+@login_required
+def load_personal_data():
+
+    if request.method == 'POST':
+        if request.files:
+            personal_data_file = request.files['personal_data']
+            personal_data_filename = secure_filename(personal_data_file.filename)
+            path_name = os.path.join(tempdirectory,personal_data_filename)
+            personal_data_file.save(path_name)
+            try:
+                pd_frame = pd.read_excel(path_name, 'fio')
+            except:
+                flash('Выбранный файл имеет некорректный формат. Необходим excel файл с персональными данными!', category="danger")
+            else:
+                personal_data_list = pd_frame.to_dict(orient='records')
+
+                for row in personal_data_list:
+                    digest = md5(row['snils'].lower().encode('utf-8')).hexdigest()
+                    row['digest'] = digest
+
+                #print(personal_data_list)
+                session['personal_data_list'] = personal_data_list
+
+    return redirect(url_for('history.history_select'))
+
 
 # Список историй болезни
 @history_blueprint.route('/history_select', methods = ['GET','POST'])
@@ -44,7 +77,8 @@ def history_select():
 
     clinic_filter_id = session.get('clinic_filter_id')
     snils_filter_hash = session.get('snils_filter_hash')
-    history_list = History.query.order_by(History.date_in)
+    personal_data_list = session.get('personal_data_list')
+    history_list = History.query.join(Patient, History.patient_id==Patient.id).order_by(History.date_in)
     if clinic_filter_id is not None:
         history_list = history_list.filter(History.clinic_id==clinic_filter_id)
 
@@ -87,6 +121,18 @@ def history_select():
         pagination =  history_list.paginate(page,5,error_out=False)
         histories = pagination.items
 
+
+    if personal_data_list:
+        # Если загружены персональные данные, то попытаемся определить ФИО по хэш снилса
+        for i in histories:
+            current_patient = Patient.query.get(i.patient_id)
+            finded_snils = next((row for row in personal_data_list if row['digest']==current_patient.snils_hash), None)
+            print(finded_snils)
+            if finded_snils:
+                i.__dict__['fio'] = finded_snils['fio']
+                i.__dict__['snils'] = finded_snils['snils']
+
+    print(histories)
 
     return render_template('history/history_select.html', HistoryFilterForm=FilterForm,
                             title='Поиск истории болезни', histories=histories, pagination=pagination)
@@ -200,6 +246,14 @@ def history_edit(h, pill):
         diagnoses_items = form_list[5]
         ambulance_events = form_list[6]
         hospital_events = form_list[7]
+        # Определим ФИО и СНИЛС если они загружены в сессию
+        personal_data_list = session.get('personal_data_list')
+        if personal_data_list:
+            current_patient = Patient.query.get(history_obj.patient_id)
+            personal_data = next((row for row in personal_data_list if row['digest']==current_patient.snils_hash ), None)
+        else:
+            personal_data = None
+
 
     else:
         items = []
@@ -207,6 +261,7 @@ def history_edit(h, pill):
         diagnoses_items = []
         ambulance_events = []
         hospital_events = []
+        personal_data = None
 
     return render_template('history/history_edit.html', history = history_obj, HistoryMainForm=HistoryMainForm_,
                             h=h, items = items, IndicatorsForm=IndicatorsForm_,
@@ -218,6 +273,7 @@ def history_edit(h, pill):
                             diagnoses_items = diagnoses_items,
                             ambulance_events = ambulance_events,
                             hospital_events = hospital_events,
+                            personal_data = personal_data,
                             pill=pill)
 
 # Сохранение показателей первичного обращения
@@ -854,6 +910,17 @@ def diagnose_delete(h,d,pill):
 @login_required
 def ambulance_edit(h, h_e, e_type, pill):
     history_obj = History.query.get(h)
+    if history_obj:
+        # Определим ФИО и СНИЛС если они загружены в сессию
+        personal_data_list = session.get('personal_data_list')
+        if personal_data_list:
+            current_patient = Patient.query.get(history_obj.patient_id)
+            personal_data = next((row for row in personal_data_list if row['digest']==current_patient.snils_hash ), None)
+        else:
+            personal_data = None
+    else:
+        personal_data = None
+
     AmbulanceMainForm_ = AmbulanceMainForm()
     IndicatorsForm_ = IndicatorsForm()
     ProsthesisForm_ = ProsthesisForm()
@@ -928,7 +995,7 @@ def ambulance_edit(h, h_e, e_type, pill):
                             h=h, history_event_id = h_e,
                             event=event_obj, history=history_obj, items = items,
                             items_2=items_2, items_3 = items_3,
-                            items_4 = items_4, pill=pill)
+                            items_4 = items_4, personal_data = personal_data, pill=pill)
 
 # Редактирование амбулаторного приема через 3 и 6 месяцев
 @history_blueprint.route('/ambulance3_edit/<h>/<hospital_id>/<operation_id>/<h_e>/<e_type>/<pill>', methods = ['GET','POST'])
@@ -942,6 +1009,17 @@ def ambulance_edit(h, h_e, e_type, pill):
 @login_required
 def ambulance3_edit(h, hospital_id, operation_id, h_e, e_type, pill):
     history_obj = History.query.get(h)
+    if history_obj:
+        # Определим ФИО и СНИЛС если они загружены в сессию
+        personal_data_list = session.get('personal_data_list')
+        if personal_data_list:
+            current_patient = Patient.query.get(history_obj.patient_id)
+            personal_data = next((row for row in personal_data_list if row['digest']==current_patient.snils_hash ), None)
+        else:
+            personal_data = None
+    else:
+        personal_data = None
+
     AmbulanceMainForm_ = AmbulanceMainForm()
     # Оценка функции сустава и качества жизни по шкалам
     Ambulance3SubForm1_ = Ambulance3SubForm1()
@@ -1024,11 +1102,13 @@ def ambulance3_edit(h, hospital_id, operation_id, h_e, e_type, pill):
         items_13 = form_list[5]
         items_profile = form_list[6]
         items_comp = form_list[7]
+
     else:
         items_1 = []
         items_13 = []
         items_profile = []
         items_comp = []
+
 
     return render_template('history/ambulance3.html', AmbulanceMainForm = AmbulanceMainForm_,
                             Ambulance3SubForm1=Ambulance3SubForm1_, Ambulance3SubForm2 = Ambulance3SubForm2_,
@@ -1039,7 +1119,8 @@ def ambulance3_edit(h, hospital_id, operation_id, h_e, e_type, pill):
                             ProfileSubForm8  = ProfileSubForm8_, ProfileSubForm9 = ProfileSubForm9_,
                             h=h, hospital=hospital_obj, operation=operation_obj, history_event_id = h_e,
                             event=event_obj, history=history_obj,
-                            items_1=items_1, items_13 = items_13, items_profile = items_profile, items_comp = items_comp, pill=pill)
+                            items_1=items_1, items_13 = items_13, items_profile = items_profile, items_comp = items_comp,
+                            personal_data = personal_data, pill=pill)
 
 
 # Редактирование амбулаторного приема через 12 месяцев
@@ -1054,6 +1135,17 @@ def ambulance3_edit(h, hospital_id, operation_id, h_e, e_type, pill):
 @login_required
 def ambulance12_edit(h, hospital_id, operation_id, h_e, e_type, pill):
     history_obj = History.query.get(h)
+    if history_obj:
+        # Определим ФИО и СНИЛС если они загружены в сессию
+        personal_data_list = session.get('personal_data_list')
+        if personal_data_list:
+            current_patient = Patient.query.get(history_obj.patient_id)
+            personal_data = next((row for row in personal_data_list if row['digest']==current_patient.snils_hash ), None)
+        else:
+            personal_data = None
+    else:
+        personal_data = None
+
     AmbulanceMainForm_ = AmbulanceMainForm()
     # Оценка функции сустава и качества жизни по шкалам
     Ambulance3SubForm1_ = Ambulance3SubForm1()
@@ -1154,6 +1246,9 @@ def ambulance12_edit(h, hospital_id, operation_id, h_e, e_type, pill):
         items_3 = form_list[11]
         items_6 = form_list[12]
         items_15 = form_list[13]
+
+
+
     else:
         items_1 = []
         items_13 = []
@@ -1162,6 +1257,7 @@ def ambulance12_edit(h, hospital_id, operation_id, h_e, e_type, pill):
         items_3 = []
         items_6 = []
         items_15 = []
+
 
     return render_template('history/ambulance12.html', AmbulanceMainForm = AmbulanceMainForm_,
                             Ambulance3SubForm1=Ambulance3SubForm1_, Ambulance3SubForm2 = Ambulance3SubForm2_,
@@ -1175,7 +1271,8 @@ def ambulance12_edit(h, hospital_id, operation_id, h_e, e_type, pill):
                             h=h, hospital=hospital_obj, operation=operation_obj, history_event_id = h_e,
                             event=event_obj, history=history_obj,
                             items_1=items_1, items_13 = items_13, items_profile = items_profile, items_comp = items_comp,
-                            items_3 = items_3, items_6 = items_6, items_15 = items_15, pill=pill)
+                            items_3 = items_3, items_6 = items_6, items_15 = items_15,
+                            personal_data = personal_data, pill=pill)
 
 # Редактирование госпитализации
 @history_blueprint.route('/hospital_edit/<h>/<h_e>/<pill>', methods = ['GET','POST'])
@@ -1186,6 +1283,17 @@ def ambulance12_edit(h, hospital_id, operation_id, h_e, e_type, pill):
 @login_required
 def hospital_edit(h, h_e, pill):
     history_obj = History.query.get(h)
+    if history_obj:
+        # Определим ФИО и СНИЛС если они загружены в сессию
+        personal_data_list = session.get('personal_data_list')
+        if personal_data_list:
+            current_patient = Patient.query.get(history_obj.patient_id)
+            personal_data = next((row for row in personal_data_list if row['digest']==current_patient.snils_hash ), None)
+        else:
+            personal_data = None
+    else:
+        personal_data = None
+
     hospital_event = HistoryEvent.query.get(h_e)
     HospitalSubForm1_ = HospitalSubForm1()
     HospitalSubForm2_ = HospitalSubForm2()
@@ -1247,6 +1355,7 @@ def hospital_edit(h, h_e, pill):
         HospitalSubForm8_ = form_list[7]
         items = form_list[8]
 
+
     return render_template('history/hospital.html', HospitalSubForm1 = HospitalSubForm1_,
                             HospitalSubForm2 = HospitalSubForm2_, HospitalSubForm3 = HospitalSubForm3_,
                             HospitalSubForm4 = HospitalSubForm4_, HospitalSubForm5 = HospitalSubForm5_,
@@ -1257,7 +1366,8 @@ def hospital_edit(h, h_e, pill):
                             ProfileSubForm6 = ProfileSubForm6_,ProfileSubForm7 = ProfileSubForm7_,
                             ProfileSubForm8 = ProfileSubForm8_, ProfileSubForm9 = ProfileSubForm9_,
                             hospital_event = hospital_event,
-                            h = h, history = history_obj, h_e = h_e, items = items, pill = pill)
+                            h = h, history = history_obj, h_e = h_e, items = items,
+                            personal_data = personal_data, pill = pill)
 
 # Редактирование операции
 @history_blueprint.route('/operation_edit/<h>/<hospital_id>/<operation_id>/<pill>', methods = ['GET','POST'])
@@ -1268,6 +1378,17 @@ def hospital_edit(h, h_e, pill):
 @login_required
 def operation_edit(h, hospital_id, operation_id, pill):
     history_obj = History.query.get(h)
+    if history_obj:
+        # Определим ФИО и СНИЛС если они загружены в сессию
+        personal_data_list = session.get('personal_data_list')
+        if personal_data_list:
+            current_patient = Patient.query.get(history_obj.patient_id)
+            personal_data = next((row for row in personal_data_list if row['digest']==current_patient.snils_hash ), None)
+        else:
+            personal_data = None
+    else:
+        personal_data = None
+
     hospital_obj = HistoryEvent.query.get(hospital_id)
     operation_obj = Operation.query.get(operation_id)
     if operation_obj:
@@ -1408,6 +1529,8 @@ def operation_edit(h, hospital_id, operation_id, pill):
 
         items = form_list[7]
 
+
+
     if operation_event:
         operation_event_id = operation_event.id
     else:
@@ -1417,7 +1540,8 @@ def operation_edit(h, hospital_id, operation_id, pill):
                             OperationsSubForm4 = OperationsSubForm4_, OperationsSubForm5 = OperationsSubForm5_,
                             OperationsSubForm6 = OperationsSubForm6_, OperationsSubForm7 = OperationsSubForm7_,
                             h = h, history = history_obj, hospital = hospital_obj, h_e = operation_event_id,
-                            operation_event = operation_event, operation = operation_obj, items = items, pill = pill)
+                            operation_event = operation_event, operation = operation_obj, items = items,
+                            personal_data = personal_data, pill = pill)
 
 # История болезни / Диагнозы
 @history_blueprint.route('/operation_comp_delete/<h>/<h_e>/<operation_id>/<operation_comp_id>/<pill>', methods = ['GET','POST'])
@@ -1765,6 +1889,17 @@ def profile_save(profile_id, history_id, history_event_id):
 @login_required
 def post_operation_edit(h, hospital_id, operation_id, post_operation_id, e_type_id, pill):
     history_obj = History.query.get(h)
+    if history_obj:
+        # Определим ФИО и СНИЛС если они загружены в сессию
+        personal_data_list = session.get('personal_data_list')
+        if personal_data_list:
+            current_patient = Patient.query.get(history_obj.patient_id)
+            personal_data = next((row for row in personal_data_list if row['digest']==current_patient.snils_hash ), None)
+        else:
+            personal_data = None
+    else:
+        personal_data = None
+
     hospital_obj = HistoryEvent.query.get(hospital_id)
     operation_obj = Operation.query.get(operation_id)
     post_operation_obj = HistoryEvent.query.get(post_operation_id)
@@ -1808,4 +1943,5 @@ def post_operation_edit(h, hospital_id, operation_id, post_operation_id, e_type_
                             PostOperationsSubForm4 = PostOperationsSubForm4_, PostOperationsSubForm5 = PostOperationsSubForm5_,
                             ProfileSubForm1 = ProfileSubForm1_,
                             h = h, history = history_obj, hospital = hospital_obj, h_e = post_operation_obj.id, operation = operation_obj, \
-                            post_operation = post_operation_obj, items = items, pill = pill)
+                            post_operation = post_operation_obj, items = items,
+                            personal_data = personal_data, pill = pill)
