@@ -8,9 +8,10 @@ def Navbar():
         #dbc.NavItem(dbc.NavLink('ИКП', href='/'))
         dbc.DropdownMenu(
             children = [
-                dbc.DropdownMenuItem('Общая статистика',href='/dashapp1_1', external_link = True),
-                dbc.DropdownMenuItem('Количественные показатели',href='/dashapp1_2', external_link = True),
-                dbc.DropdownMenuItem('Качественные показатели',href='/dashapp1_3', external_link = True)
+                dbc.DropdownMenuItem('Реестр пациентов',href='/dashapp1_1', external_link = True),
+                dbc.DropdownMenuItem('Общая статистика',href='/dashapp1_2', external_link = True),
+                dbc.DropdownMenuItem('Количественные показатели',href='/dashapp1_3', external_link = True),
+                dbc.DropdownMenuItem('Качественные показатели',href='/dashapp1_4', external_link = True)
             ],
             nav=True,
             in_navbar = True,
@@ -23,7 +24,7 @@ def Navbar():
                 dbc.DropdownMenuItem('Качественные показатели',href='/dashapp2_3', external_link = True)
             ],
             nav=True,
-            in_navbar = True,            
+            in_navbar = True,
             label = 'Анализ показателей одной группы'
                         ),
         dbc.DropdownMenu(
@@ -43,7 +44,7 @@ def Navbar():
     brand_external_link = True,
     color = 'secondary',
     dark = True,
-    className = 'justify-content-start text-uppercase font-weight-bold px-3'
+    className = 'text-uppercase font-weight-bold px-3'
     )
 
     return navbar

@@ -61,7 +61,8 @@ def register_dashapps(app, title, base_pathname, layout, register_callback_fun):
                          assets_folder=get_root_path(__name__) + f'/analytics/assets/',
                          #assets_url_path =
                          meta_tags=[meta_viewport],
-                         external_stylesheets = [dbc.themes.FLATLY],
+                         external_stylesheets = [dbc.themes.BOOTSTRAP],
+                         #external_stylesheets = [dbc.themes.FLATLY],
                          )
 
     with app.app_context():
