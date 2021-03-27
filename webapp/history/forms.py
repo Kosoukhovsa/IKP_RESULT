@@ -36,6 +36,10 @@ class HistoryMainForm(FlaskForm):
     date_research_in = DateField('Дата включения в исследование',validators=[Optional()])
     date_research_out = DateField('Дата исключения из исследования',validators=[Optional()])
     reason = SelectField('Причина исключения из исследования', coerce = int, validators=[Optional()])
+    # Основной диагноз будет здесь, так как при сохранении истории болезни нужно знать сторону поражения  
+    diagnos = SelectField('Диагноз', coerce = int, validators=[DataRequired()])
+    side_damage = SelectField('Сторона поражения', coerce = str, validators=[DataRequired()])
+    date_created = DateField('Дата установления', validators=[DataRequired()])
     submit = SubmitField('Сохранить')
 
     def __init__(self, *args, **kwargs):
@@ -49,6 +53,9 @@ class HistoryMainForm(FlaskForm):
         self.sex.choices=[('1','Male'),('2','Female')]
         self.doctor_researcher.choices=[(doctor.id, doctor.fio)
                               for doctor in Doctor.query.order_by(Doctor.fio).all()]
+        self.diagnos.choices=[(diagnos.id, diagnos.description)
+                              for diagnos in DiagnoseItem.query.filter(DiagnoseItem.type=='Основной').order_by(DiagnoseItem.id).all()]
+        self.side_damage.choices=[('Левая','Левая'),('Правая','Правая')]
 
 class IndicatorsForm(FlaskForm):
     #hist_number = StringField('Номер истории болезни', validators=[DataRequired())
@@ -184,12 +191,14 @@ class Ambulance3SubForm4(FlaskForm):
 # Рентгенография
 class Ambulance3SubForm5(FlaskForm):
     indicators_date_begin = DateField('Дата заполнения', validators=[DataRequired()])
-    zone_light = SelectField('Наличие зоны просветления вокруг', coerce = int, validators=[DataRequired()])
+    zone_light1 = SelectField('Наличие зоны просветления вокруг', coerce = int, validators=[DataRequired()])
+    zone_light2 = SelectField('Наличие зоны просветления вокруг', coerce = int, validators=[DataRequired()])
     save_indicators = SubmitField('Сохранить')
 
     def __init__(self, *args, **kwargs):
         super(Ambulance3SubForm5, self).__init__(*args, **kwargs)
-        self.zone_light.choices=[(value.id_value, value.text_value) for value in IndicatorDef.query.filter_by(indicator_id=103).all()]
+        self.zone_light1.choices=[(value.id_value, value.text_value) for value in IndicatorDef.query.filter_by(indicator_id=113).all()]
+        self.zone_light2.choices=[(value.id_value, value.text_value) for value in IndicatorDef.query.filter_by(indicator_id=114).all()]
 
 
 # Телерентгенография нижних конечностей
@@ -286,8 +295,8 @@ class HospitalSubForm8(FlaskForm):
 
 # -- Операция: заголовок
 class OperationsSubForm1(FlaskForm):
+    doctor_surgeon = SelectField(" Хирург", coerce = int, validators=[DataRequired()])
     doctor_assistant = SelectField("Ассистент хирурга", coerce = int, validators=[DataRequired()])
-    doctor_surgeon = SelectField("Хирург", coerce = int, validators=[DataRequired()])
     operation_order = IntegerField("Очередность", validators=[DataRequired()])
     submit = SubmitField('Сохранить')
 
@@ -308,7 +317,7 @@ class OperationsSubForm2(FlaskForm):
     surgical_access = SelectField('Хирургический доступ', coerce = int, validators=[DataRequired()])
     operation_specificity = SelectField('Особенности операции', coerce = int, validators=[DataRequired()])
     technical_difficulty = SelectField('Технические трудности', coerce = int, validators=[DataRequired()])
-    intraoperative_blood_loss = IntegerField('Интраоперационные кровопотери (мл)', validators=[DataRequired()])
+    intraoperative_blood_loss = IntegerField('Интраоперационная кровопотеря (мл)', validators=[DataRequired()])
     wound_drainage = SelectField('Дренирование раны', coerce = int, validators=[DataRequired()])
     amount_of_water = IntegerField('Количество отделяемого по дренажу (мл)', validators=[DataRequired()])
     duration_drainage = IntegerField('Длительность дренирования (ч)', validators=[DataRequired()])

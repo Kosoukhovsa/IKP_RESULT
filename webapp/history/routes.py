@@ -190,10 +190,10 @@ def history_edit(h, pill):
 
     if HistioryNewAmbulanceForm_.submit.data: # and HistioryNewAmbulanceForm_.validate_on_submit():
         pill = 4
-        print('????')
         # Проверка существования такого типа приема
         hisory_event = HistoryEvent.query.filter(HistoryEvent.history_id==h, HistoryEvent.event_id==HistioryNewAmbulanceForm_.event.data).first()
-        if hisory_event is not None:
+        if hisory_event is not None and hisory_event.event_id != 11:
+            # Амбулаторные приемы одинаковых типов заводить нельзя - кроме ежегодных после операции
             flash('Амбулаторный прием такого типа уже существует', category='warning')
             return redirect(url_for('history.history_edit', h=history_obj.id, pill=pill))
         else:
@@ -835,8 +835,10 @@ def save_indicators(h, h_e, pill):
                         indicator_value.date_value = datetime.strptime(request.form.get('indicators_date_begin'), '%Y-%m-%d').date()
                     if len(comments) > i:
                         indicator_value.comment = comments[i]
-                    if id == '103':
-                        indicator_value.def_value = request.form.get('zone_light')
+                    if id == '113':
+                        indicator_value.def_value = request.form.get('zone_light1')
+                    if id == '114':
+                        indicator_value.def_value = request.form.get('zone_light2')
 
                     db.session.add(indicator_value)
             try:

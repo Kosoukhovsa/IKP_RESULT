@@ -19,7 +19,8 @@ def CreateHistory(HistoryMainForm_, snils):
         return None
 
     digest = md5(snils.lower().encode('utf-8')).hexdigest()
-    if Patient.get_patient_by_snils(digest) is None:
+    patient_obj = Patient.get_patient_by_snils(digest)
+    if patient_obj is None:
         # Новый пациент
         new_patient = Patient()
         new_patient.birthdate = HistoryMainForm_.birthdate.data
@@ -27,54 +28,76 @@ def CreateHistory(HistoryMainForm_, snils):
         new_patient.snils_hash = digest
         db.session.add(new_patient)
         db.session.flush()
-
-        # Новая история болезни
-        new_hist = History()
-        new_hist.clinic_id = HistoryMainForm_.clinic.data
-        new_hist.hist_number = HistoryMainForm_.hist_number.data
-        new_hist.date_in = HistoryMainForm_.date_in.data
-        new_hist.patient_id = new_patient.id
-        new_hist.research_group_id = HistoryMainForm_.research_group.data
-        new_hist.doctor_researcher_id = HistoryMainForm_.doctor_researcher.data
-        new_hist.date_research_in = HistoryMainForm_.date_research_in.data
-        new_hist.date_research_out = HistoryMainForm_.date_research_out.data
-        new_hist.reason_id = HistoryMainForm_.reason.data
-        db.session.add(new_hist)
-        db.session.flush()
-
-        # Пустое первичное обращение
-        new_event = HistoryEvent()
-        new_event.clinic_id = HistoryMainForm_.clinic.data
-        new_event.history_id = new_hist.id
-        new_event.patient_id = new_patient.id
-        new_event.date_begin = new_hist.date_in
-        new_event.event_id = 1
-        db.session.add(new_event)
-        db.session.flush()
-
-        # Показатели: Физические параметры (самооценка при первичном опросе)
-        indicators = Indicator.query.filter(Indicator.group_id==11).all()
-        for i in indicators:
-            new_i = IndicatorValue()
-            new_i.clinic_id = HistoryMainForm_.clinic.data
-            new_i.history_id = new_hist.id
-            new_i.patient_id = new_patient.id
-            new_i.history_event_id = new_event.id
-            new_i.indicator_id = i.id
-            new_i.date_value = new_hist.date_in
-            db.session.add(new_i)
-        try:
-            db.session.commit()
-        except Exception as e:
-            flash('Ошибка при сохранении данных: %s' % str(e), 'error')
-            db.session.rollback()
-            return(None)
-        else:
-            return(new_hist)
-
     else:
-        flash('Пациент с указанным СНИЛС уже есть в базе', category='warning')
+        # Найти историю болезни по пациенту и узнать сторону поражения
+        history_obj = History.query.filter(History.patient_id==patient_obj.id).first()
+        if history_obj:
+            main_diagnose_obj = history_obj.get_diagnoses()[1]
+            if main_diagnose_obj and main_diagnose_obj.side_damage == HistoryMainForm_.side_damage.data:
+                # Пациент уже есть и у него история болезни с этой же стороной поражения
+                flash('Пациент с указанным СНИЛС и такой же стороной поражения уже есть в базе', category='warning')
+                return(None)
+            elif main_diagnose_obj:
+                # Пациент уже есть, но у него история болезни с другой стороной поражения
+                # нужно заполнить его данные 
+                new_patient = patient_obj
+
+    # Новая история болезни
+    new_hist = History()
+    new_hist.clinic_id = HistoryMainForm_.clinic.data
+    new_hist.hist_number = HistoryMainForm_.hist_number.data
+    new_hist.date_in = HistoryMainForm_.date_in.data
+    new_hist.patient_id = new_patient.id
+    new_hist.research_group_id = HistoryMainForm_.research_group.data
+    new_hist.doctor_researcher_id = HistoryMainForm_.doctor_researcher.data
+    new_hist.date_research_in = HistoryMainForm_.date_research_in.data
+    new_hist.date_research_out = HistoryMainForm_.date_research_out.data
+    new_hist.reason_id = HistoryMainForm_.reason.data
+    db.session.add(new_hist)
+    db.session.flush()
+
+    # Создаем основной диагноз
+    main_diagnose = Diagnose()
+    main_diagnose.history_id = new_hist.id
+    main_diagnose.clinic_id = new_hist.clinic_id
+    main_diagnose.patient_id = new_hist.patient_id
+    main_diagnose.diagnose_item_id = HistoryMainForm_.diagnos.data
+    main_diagnose.side_damage = HistoryMainForm_.side_damage.data
+    main_diagnose.date_created = HistoryMainForm_.date_created.data
+
+    db.session.add(main_diagnose)
+    db.session.flush()
+
+    # Пустое первичное обращение
+    new_event = HistoryEvent()
+    new_event.clinic_id = HistoryMainForm_.clinic.data
+    new_event.history_id = new_hist.id
+    new_event.patient_id = new_patient.id
+    new_event.date_begin = new_hist.date_in
+    new_event.event_id = 1
+    db.session.add(new_event)
+    db.session.flush()
+
+    # Показатели: Физические параметры (самооценка при первичном опросе)
+    indicators = Indicator.query.filter(Indicator.group_id==11).all()
+    for i in indicators:
+        new_i = IndicatorValue()
+        new_i.clinic_id = HistoryMainForm_.clinic.data
+        new_i.history_id = new_hist.id
+        new_i.patient_id = new_patient.id
+        new_i.history_event_id = new_event.id
+        new_i.indicator_id = i.id
+        new_i.date_value = new_hist.date_in
+        db.session.add(new_i)
+    try:
+        db.session.commit()
+    except Exception as e:
+        flash('Ошибка при сохранении данных: %s' % str(e), 'error')
+        db.session.rollback()
         return(None)
+    else:
+        return(new_hist)
+
 
 # Обновление истории болезни
 def UpdateHistory(HistoryMainForm_, h):
@@ -99,6 +122,15 @@ def UpdateHistory(HistoryMainForm_, h):
             history_obj.date_research_out = HistoryMainForm_.date_research_out.data
             history_obj.reason_id = HistoryMainForm_.reason.data
             db.session.add(history_obj)
+
+            main_diagnose = history_obj.get_diagnoses()[1]
+            if main_diagnose is not None:
+                # Основной диагноз уже есть
+                # Обновить атрибуты
+                main_diagnose.diagnose_item_id = HistoryMainForm_.diagnos.data
+                main_diagnose.side_damage = HistoryMainForm_.side_damage.data
+                main_diagnose.date_created = HistoryMainForm_.date_created.data
+
             try:
                 db.session.commit()
             except Exception as e:
@@ -200,9 +232,9 @@ def FillHistoryForm(HistoryMainForm_, IndicatorsForm_, HistoryMainDiagnosForm_, 
         main_diagnose = history_obj.get_diagnoses()[1]
 
         if main_diagnose is not None:
-            HistoryMainDiagnosForm_.diagnos.data = main_diagnose.diagnose_item_id
-            HistoryMainDiagnosForm_.side_damage.data = main_diagnose.side_damage
-            HistoryMainDiagnosForm_.date_created.data = main_diagnose.date_created
+            HistoryMainForm_.diagnos.data = main_diagnose.diagnose_item_id
+            HistoryMainForm_.side_damage.data = main_diagnose.side_damage
+            HistoryMainForm_.date_created.data = main_diagnose.date_created
 
         # Добавление амбулаторных приемов
         ambulance_events = history_obj.get_events(type='2')
@@ -221,7 +253,7 @@ def FillHistoryForm(HistoryMainForm_, IndicatorsForm_, HistoryMainDiagnosForm_, 
 def CreateAmbulance(AmbulanceMainForm_, history_obj, event_obj):
 
     ambulance_event = HistoryEvent.query.filter(HistoryEvent.history_id==history_obj.id,HistoryEvent.event_id==event_obj.id).first()
-    if ambulance_event is None:
+    if ambulance_event is None or ambulance_event.event_id == 11:
         # Создаем амбулаторный прием
         ambulance_event = HistoryEvent()
         ambulance_event.clinic_id = history_obj.clinic_id
@@ -537,8 +569,10 @@ def FillAmbulance12Form(AmbulanceMainForm_, Ambulance3SubForm1_, Ambulance3SubFo
         Ambulance3SubForm5_.indicators_date_begin.data = items_15[0].get("date_value")
         for item in items_15:
             indicator_id = item.get('indicator')
-            if indicator_id == 103:
-                Ambulance3SubForm5_.zone_light.data = item.get('def_value')
+            if indicator_id == 113:
+                Ambulance3SubForm5_.zone_light1.data = item.get('def_value')
+            if indicator_id == 114:
+                Ambulance3SubForm5_.zone_light2.data = item.get('def_value')
         # Заключение
         items_13 = ambulance_event.get_indicators_values(13)
         for item in items_13:
