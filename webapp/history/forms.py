@@ -380,18 +380,18 @@ class OperationsSubForm7(FlaskForm):
 # ---- VAS
 class ProfileSubForm1(FlaskForm):
     date_created = DateField('Дата заполнения', validators=[DataRequired()])
-    num_value = IntegerField('Значение показателя VAS (от 1 до 10):', validators=[DataRequired()])
+    num_value = IntegerField('Значение показателя VAS (от 0 до 10):', validators=[DataRequired()])
     submit = SubmitField('Сохранить')
 
 
     def validate_num_value(self, field):
 
-        if field.data < 1 or field.data > 10:
+        if field.data < 0 or field.data > 10:
             print(type(self.num_value.errors))
             print(self.num_value.errors)
-            self.num_value.errors.append('Значение должно быть от 1 до 10')
+            self.num_value.errors.append('Значение должно быть от 0 до 10')
 
-            raise ValidationError('Значение от 1 до 10')
+            raise ValidationError('Значение от 0 до 10')
 
 # -- Анкеты: модальные формы для заполнения результатов разделов
 # ---- ASA
