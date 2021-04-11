@@ -177,7 +177,7 @@ class Profile(db.Model):
             item['profile_section_id'] = section.id
             item['description'] = current_profile.description
             # Получить ответы по разделам анкет
-            section_response = ProfileSectionResponse.query.filter_by(profile_section_id=section.id, history_event_id=history_event.id).first()
+            section_response = ProfileSectionResponse.query.filter_by(profile_id=current_profile.id, profile_section_id=section.id, history_event_id=history_event.id).first()
             if section_response:
                 # Есть ответ
                 if section_response.response_value == 0:

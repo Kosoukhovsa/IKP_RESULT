@@ -1592,9 +1592,10 @@ def profile_save(profile_id, history_id, history_event_id):
     ProfileSubForm9_ = ProfileSubForm9()
 
     history_event_obj = HistoryEvent.query.get(history_event_id)
-    print(history_event_obj.id)
 
-    if ProfileSubForm1_.submit.data and ProfileSubForm1_.validate_on_submit():
+    
+#and ProfileSubForm1_.validate_on_submit() 
+    if ProfileSubForm1_.submit.data and profile_id == '1':
         # Сохранение результатов анкеты 1
         profile_section = ProfileSection.query.filter_by(profile_section='VAS').first()
         if profile_section is None:
@@ -1611,14 +1612,14 @@ def profile_save(profile_id, history_id, history_event_id):
             section_response.history_event_id = history_event_id
             section_response.profile_id = profile_id
             section_response.profile_section_id = profile_section.id
-
+        
         section_response.date_value = ProfileSubForm1_.date_created.data
         section_response.response_value = ProfileSubForm1_.num_value.data
         section_response.response_str = ''
         db.session.add(section_response)
         db.session.commit()
 
-    if ProfileSubForm2_.submit.data and ProfileSubForm2_.validate_on_submit():
+    if ProfileSubForm2_.submit.data and ProfileSubForm2_.validate_on_submit() and profile_id == '2':
         # Сохранение результатов анкеты 1
         profile_section = ProfileSection.query.filter_by(profile_section='ASA').first()
         if profile_section is None:
@@ -1642,7 +1643,7 @@ def profile_save(profile_id, history_id, history_event_id):
         db.session.add(section_response)
         db.session.commit()
 
-    if ProfileSubForm3_.submit.data and ProfileSubForm3_.validate_on_submit():
+    if ProfileSubForm3_.submit.data and ProfileSubForm3_.validate_on_submit() and profile_id == '3':
         # Сохранение результатов анкеты 1
         profile_sections = ProfileSection.query.filter_by(profile_id=3).all()
         if len(profile_sections) == 0:
@@ -1672,7 +1673,7 @@ def profile_save(profile_id, history_id, history_event_id):
 
         db.session.commit()
 
-    if ProfileSubForm4_.submit.data and ProfileSubForm4_.validate_on_submit():
+    if ProfileSubForm4_.submit.data and ProfileSubForm4_.validate_on_submit() and profile_id == '4':
         # Сохранение результатов анкеты 1
         profile_section = ProfileSection.query.filter_by(profile_section='OKS').first()
         if profile_section is None:
@@ -1696,7 +1697,7 @@ def profile_save(profile_id, history_id, history_event_id):
         db.session.add(section_response)
         db.session.commit()
 
-    if ProfileSubForm5_.submit.data and ProfileSubForm5_.validate_on_submit():
+    if ProfileSubForm5_.submit.data and ProfileSubForm5_.validate_on_submit() and profile_id == '5':
         # Сохранение результатов анкеты 5
         profile_sections = ProfileSection.query.filter_by(profile_id=5).order_by(ProfileSection.id.desc()).all()
         if len(profile_sections) == 0:
@@ -1737,7 +1738,7 @@ def profile_save(profile_id, history_id, history_event_id):
 
         db.session.commit()
 
-    if ProfileSubForm6_.submit.data and ProfileSubForm6_.validate_on_submit():
+    if ProfileSubForm6_.submit.data and ProfileSubForm6_.validate_on_submit() and profile_id == '6':
         # Сохранение результатов анкеты 5
         profile_sections = ProfileSection.query.filter_by(profile_id=6).all()
         if len(profile_sections) == 0:
@@ -1780,7 +1781,7 @@ def profile_save(profile_id, history_id, history_event_id):
 
         db.session.commit()
 
-    if ProfileSubForm7_.submit.data and ProfileSubForm7_.validate_on_submit():
+    if ProfileSubForm7_.submit.data and ProfileSubForm7_.validate_on_submit() and profile_id == '7':
         # Сохранение результатов анкеты 5
         profile_sections = ProfileSection.query.filter_by(profile_id=7).all()
         if len(profile_sections) == 0:
@@ -1811,7 +1812,7 @@ def profile_save(profile_id, history_id, history_event_id):
 
         db.session.commit()
 
-    if ProfileSubForm8_.submit.data and ProfileSubForm8_.validate_on_submit():
+    if ProfileSubForm8_.submit.data and ProfileSubForm8_.validate_on_submit() and profile_id == '8':
         # Сохранение результатов анкеты 1
         profile_section = ProfileSection.query.filter_by(profile_section='FJS-12').first()
         if profile_section is None:
@@ -1835,7 +1836,7 @@ def profile_save(profile_id, history_id, history_event_id):
         db.session.add(section_response)
         db.session.commit()
 
-    if ProfileSubForm9_.submit.data and ProfileSubForm9_.validate_on_submit():
+    if ProfileSubForm9_.submit.data and ProfileSubForm9_.validate_on_submit() and profile_id == '9':
         # Сохранение результатов анкеты 1
         profile_section = ProfileSection.query.filter_by(profile_section='SLR').first()
         if profile_section is None:

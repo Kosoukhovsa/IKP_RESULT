@@ -380,18 +380,17 @@ class OperationsSubForm7(FlaskForm):
 # ---- VAS
 class ProfileSubForm1(FlaskForm):
     date_created = DateField('Дата заполнения', validators=[DataRequired()])
-    num_value = IntegerField('Значение показателя VAS (от 0 до 10):', validators=[DataRequired()])
+    num_value = IntegerField('Значение показателя VAS (от 0 до 10):') #validators=[DataRequired()])
     submit = SubmitField('Сохранить')
 
 
-    def validate_num_value(self, field):
+    #def validate_num_value(self, field):
 
-        if field.data < 0 or field.data > 10:
-            print(type(self.num_value.errors))
-            print(self.num_value.errors)
-            self.num_value.errors.append('Значение должно быть от 0 до 10')
-
-            raise ValidationError('Значение от 0 до 10')
+    #    if field.data < 0 or field.data > 10:
+    #        print(type(self.num_value.errors))
+    #        print(self.num_value.errors)
+    #        self.num_value.errors.append('Значение должно быть от 0 до 10')
+    #        raise ValidationError('Значение от 0 до 10')
 
 # -- Анкеты: модальные формы для заполнения результатов разделов
 # ---- ASA
@@ -408,24 +407,24 @@ class ProfileSubForm2(FlaskForm):
 # ---- KSS
 class ProfileSubForm3(FlaskForm):
     date_created = DateField('Дата заполнения', validators=[DataRequired()])
-    value_kss_k = IntegerField('Шкала колена (Knee Score) от 0 до 100:', validators=[DataRequired()])
-    value_kss_f = IntegerField('Шкала функции (Function Score) от 0 до 100:', validators=[DataRequired()])
+    value_kss_k = IntegerField('Шкала колена (Knee Score) от 0 до 100:')#, validators=[DataRequired()])
+    value_kss_f = IntegerField('Шкала функции (Function Score) от 0 до 100:')#, validators=[DataRequired()])
     submit = SubmitField('Сохранить')
 
 # -- Анкеты: модальные формы для заполнения результатов разделов
 # ---- OKS
 class ProfileSubForm4(FlaskForm):
     date_created = DateField('Дата заполнения', validators=[DataRequired()])
-    value_oks = IntegerField('OKS от 0 до 48:', validators=[DataRequired()])
+    value_oks = IntegerField('OKS от 0 до 48:')#, validators=[DataRequired()])
     submit = SubmitField('Сохранить')
 
 # -- Анкеты: модальные формы для заполнения результатов разделов
 # ---- WOMAC
 class ProfileSubForm5(FlaskForm):
     date_created = DateField('Дата заполнения', validators=[DataRequired()])
-    value_a = IntegerField('A - боль в коленном суставе (от 0 до 20):', validators=[DataRequired()])
-    value_b = IntegerField('B - скованность коленного сустава (от 0 до 8):', validators=[DataRequired()])
-    value_c = IntegerField('C - степень затруднения - функция коленного сустава (от 0 до 68):', validators=[DataRequired()])
+    value_a = IntegerField('A - боль в коленном суставе (от 0 до 20):')#, validators=[DataRequired()])
+    value_b = IntegerField('B - скованность коленного сустава (от 0 до 8):')#, validators=[DataRequired()])
+    value_c = IntegerField('C - степень затруднения - функция коленного сустава (от 0 до 68):')#, validators=[DataRequired()])
     submit = SubmitField('Сохранить')
 
 # -- Анкеты: модальные формы для заполнения результатов разделов
@@ -454,14 +453,14 @@ class ProfileSubForm7(FlaskForm):
 # ---- fjs-12
 class ProfileSubForm8(FlaskForm):
     date_created = DateField('Дата заполнения', validators=[DataRequired()])
-    value_fjs = IntegerField('FJS-12 - Шкала «забытого сустава» (от 0 до 100):', validators=[DataRequired()])
+    value_fjs = IntegerField('FJS-12 - Шкала «забытого сустава» (от 0 до 100):')#, validators=[DataRequired()])
     submit = SubmitField('Сохранить')
 
 # -- Анкеты: модальные формы для заполнения результатов разделов
 # ---- SLR
 class ProfileSubForm9(FlaskForm):
     date_created = DateField('Дата заполнения', validators=[DataRequired()])
-    value_slr = IntegerField('SLR - Шкала SLR (от 0 до 5):', validators=[DataRequired()])
+    value_slr = IntegerField('SLR - Шкала SLR (от 0 до 5):')#, validators=[DataRequired()])
     submit = SubmitField('Сохранить')
 
 # -- Послеоперационное наблюдение: Данные объективного осмотра
