@@ -135,6 +135,47 @@ class History(db.Model):
 
         return items
 
+    def check_history(self, **kwargs):
+        """
+        Проверка истории болезни 
+        Возвращает результаты проверки в виде словаря 
+        Параметры:        
+        """
+        # Проверка 1:
+        # В разделе телерентгенографии где отмечаем углы, 
+        # есть пункт уровень суставной щели ( полученные данные сравниваются с нормой, норма - 0, 
+        # но нам необходимо сравнивать полученную цифру с цифрой до операции, 
+        # в графе норма надо чтобы подтягивалось из базы данные до операции  
+        result_check = {}
+        # Получить показатель - Уровень суставной щели по всем событиям истории болезни
+        iv_set = IndicatorValue.query.join(HistoryEvent, HistoryEvent.id == IndicatorValue.history_event_id).\
+                        filter(and_(IndicatorValue.history_id==self.id, 
+                                    IndicatorValue.indicator_id==106, 
+                                    IndicatorValue.slice=='Значение')).all()
+        # Значение до операции 
+        val_ind_before = 0
+        for val_ind in iv_set:
+            if val_ind.event_id == 3:
+                val_ind_before = val_ind.num_value
+
+        # Если значение показателя = 0 то дальнейшие проверки бессмысленны
+        #if val_ind_before == 0:
+        #    return(result_check)
+
+        # Сравнение значений после операции со значением до операции
+        for val_ind in iv_set:
+            if val_ind.event_id > 4:
+                if val_ind.num_value != val_ind_before:
+                    result_check['Indicator'] = val_ind.indicator_id
+                    result_check['Event'] = val_ind.indicator_id
+        
+        return(result_check)
+
+        
+
+
+
+
 
 # Диагнозы
 class Diagnose(db.Model):
@@ -242,6 +283,8 @@ class IndicatorValue(db.Model):
     num_deviation = db.Column(db.Numeric())
     def_value = db.Column(db.Integer())
     comment = db.Column(db.String(500))
+    events = db.relationship('HistoryEvent', backref='indicator_values')
+
 
 # Операции
 class Operation(db.Model):
@@ -314,3 +357,5 @@ class ProfileResponse(db.Model):
     profile_item_id= db.Column(db.Integer(), db.ForeignKey('ProfileItem.id'))
     response = db.Column(db.String(100), unique=False)
     response_value = db.Column(db.Numeric())
+
+

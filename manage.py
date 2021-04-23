@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from webapp import db, migrate, create_app
 from webapp.auth.models import User, Role
 from webapp.main.models import Clinic
+from webapp.history.models import IndicatorValue, HistoryEvent, History
 from webapp.cli import register
 
 # Чтение переменной окружения
@@ -18,4 +19,6 @@ register(app)
 
 @app.shell_context_processor
 def make_shell_context():
-    return dict(app=app, db=db, User=User, Role=Role, Clinic=Clinic, insert_clinic=insert_clinic)
+    return dict(app=app, db=db, User=User, Role=Role, Clinic=Clinic, 
+                IndicatorValue=IndicatorValue, HistoryEvent=HistoryEvent,
+                History=History)

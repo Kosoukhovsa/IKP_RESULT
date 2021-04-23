@@ -1,37 +1,44 @@
-from flask import render_template, redirect, url_for, flash, request, session, Blueprint, jsonify
-from werkzeug.utils import secure_filename
-from flask_login import login_required
-from .forms import HistoryFilterForm, HistoryMainForm, IndicatorsForm, HistoryMainDiagnosForm,\
-                   HistoryOtherDiagnosForm, HistioryNewAmbulanceForm, NewHospitalForm,\
-                   AmbulanceMainForm, IndicatorsForm, ProsthesisForm, PreoperativeForm, TelerentgenographyForm,\
-                   HospitalSubForm1, HospitalSubForm2, HospitalSubForm3, HospitalSubForm4, \
-                   HospitalSubForm5, HospitalSubForm6, HospitalSubForm7, HospitalSubForm8, \
-                   OperationsSubForm1, OperationsSubForm2, OperationsSubForm3, OperationsSubForm4,\
-                   OperationsSubForm5, OperationsSubForm6, OperationsSubForm7, ProfileSubForm1, \
-                   ProfileSubForm2, ProfileSubForm3, ProfileSubForm4, ProfileSubForm5, ProfileSubForm6, \
-                   ProfileSubForm7, ProfileSubForm8, ProfileSubForm9, PostOperationsSubForm1, PostOperationsSubForm2, \
-                   PostOperationsSubForm3, PostOperationsSubForm4, PostOperationsSubForm5,\
-                   Ambulance3SubForm1, Ambulance3SubForm2, Ambulance3SubForm3, Ambulance3SubForm4, \
-                   Ambulance3SubForm5, Ambulance3SubForm6, Ambulance3SubForm7
+import os
+import tempfile
+from datetime import datetime, timedelta
+from hashlib import md5
 
+import pandas as pd
+from flask import (Blueprint, flash, jsonify, redirect, render_template,
+                   request, session, url_for)
+from flask_login import login_required
+from werkzeug.utils import secure_filename
 
 from .. import db
-from .models import History, Patient, Diagnose, Patient, HistoryEvent, Operation, IndicatorValue, OperationLog, \
-                    OperationComp
-from ..main.models import Clinic, Indicator, Event, DiagnoseItem, Prosthesis, OperationStep, ProfileSection,\
-                            ProfileSectionResponse, Profile
-from hashlib import md5
-from . import CreateHistory, AddMainDiagnos, AddOtherDiagnos, FillHistoryForm, UpdateHistory, \
-                    FillAmbulanceForm, UpdateAmbulance, CreateAmbulance, CreateHospital,\
-                    UpdateHospital, FillHospitalForm, CreateOperation, FillOperationForm,\
-                    CreatePostOperation, FillPostOperationForm,\
-                    FillAmbulance3Form, FillAmbulance12Form
-
-
-from datetime import datetime, timedelta
-import tempfile
-import pandas as pd
-import os
+from ..main.models import (Clinic, DiagnoseItem, Event, Indicator,
+                           OperationStep, Profile, ProfileSection,
+                           ProfileSectionResponse, Prosthesis)
+from . import (AddMainDiagnos, AddOtherDiagnos, CreateAmbulance, CreateHistory,
+               CreateHospital, CreateOperation, CreatePostOperation,
+               FillAmbulance3Form, FillAmbulance12Form, FillAmbulanceForm,
+               FillHistoryForm, FillHospitalForm, FillOperationForm,
+               FillPostOperationForm, UpdateAmbulance, UpdateHistory,
+               UpdateHospital)
+from .forms import (Ambulance3SubForm1, Ambulance3SubForm2, Ambulance3SubForm3,
+                    Ambulance3SubForm4, Ambulance3SubForm5, Ambulance3SubForm6,
+                    Ambulance3SubForm7, AmbulanceMainForm,
+                    HistioryNewAmbulanceForm, HistoryFilterForm,
+                    HistoryMainDiagnosForm, HistoryMainForm,
+                    HistoryOtherDiagnosForm, HospitalSubForm1,
+                    HospitalSubForm2, HospitalSubForm3, HospitalSubForm4,
+                    HospitalSubForm5, HospitalSubForm6, HospitalSubForm7,
+                    HospitalSubForm8, IndicatorsForm, NewHospitalForm,
+                    OperationsSubForm1, OperationsSubForm2, OperationsSubForm3,
+                    OperationsSubForm4, OperationsSubForm5, OperationsSubForm6,
+                    OperationsSubForm7, PostOperationsSubForm1,
+                    PostOperationsSubForm2, PostOperationsSubForm3,
+                    PostOperationsSubForm4, PostOperationsSubForm5,
+                    PreoperativeForm, ProfileSubForm1, ProfileSubForm2,
+                    ProfileSubForm3, ProfileSubForm4, ProfileSubForm5,
+                    ProfileSubForm6, ProfileSubForm7, ProfileSubForm8,
+                    ProfileSubForm9, ProsthesisForm, TelerentgenographyForm)
+from .models import (Diagnose, History, HistoryEvent, IndicatorValue,
+                     Operation, OperationComp, OperationLog, Patient)
 
 history_blueprint = Blueprint('history',
                             __name__,
@@ -48,8 +55,13 @@ def load_personal_data():
         if request.files:
             personal_data_file = request.files['personal_data']
             personal_data_filename = secure_filename(personal_data_file.filename)
+            if personal_data_filename == '':
+                flash('Выберите файл', category="warning")
+                return redirect(url_for('history.history_select'))
+
             path_name = os.path.join(tempdirectory,personal_data_filename)
             personal_data_file.save(path_name)
+            session['file_name'] = path_name
             try:
                 pd_frame = pd.read_excel(path_name, 'fio')
             except:
@@ -63,6 +75,40 @@ def load_personal_data():
 
                 #print(personal_data_list)
                 session['personal_data_list'] = personal_data_list
+                flash('Файл с персональными данными загружен', category='info')
+
+
+    return redirect(url_for('history.history_select'))
+
+# Замена персональных данных (СНИЛС)
+@history_blueprint.route('/replace_personal_data', methods = ['GET','POST'])
+@login_required
+def replace_personal_data():
+    # Список персональных данных
+    personal_data_list = session.get('personal_data_list')
+    # Ищем пациентов по старому СНИЛС
+    for p_data in personal_data_list:        
+        new_snils = str(p_data['new_snils'])
+        print(f'Новый СНИЛС:{new_snils}')
+        if new_snils.strip() != 'nan':        
+            # Получим пациента по СНИЛС
+            old_snils_hash = Patient.get_snils_hash(p_data['snils'])
+            patient = Patient.get_patient_by_snils(old_snils_hash)
+            i = 0 # Индикатор произведенной замены
+            if patient:
+                # Замена СНИЛС
+                new_snils_hash = Patient.get_snils_hash(p_data['new_snils'])
+                patient.snils_hash = new_snils_hash
+                db.session.add(patient)
+                db.session.commit()
+                i += 1
+                flash(f"СНИЛС {p_data['snils']} был скорректирован на {p_data['new_snils']}", category='info')
+                #p_data['snils'] = p_data['new_snils']
+                #session['personal_data_list'] = personal_data_list      
+            if i > 0:
+                flash('Была произведена корректировка СНИЛС! Не забудьте поменять СНИЛС в файле с персональными данными!', category='warning')
+            else:
+                flash('Изменений в системе не выпонено', category='info')
 
     return redirect(url_for('history.history_select'))
 
@@ -131,11 +177,15 @@ def history_select():
             if finded_snils:
                 i.__dict__['fio'] = finded_snils['fio']
                 i.__dict__['snils'] = finded_snils['snils']
+  
+    file_name = ''
+    if session.get('path_name'):
+        file_name = session.get('path_name')
 
-    print(histories)
 
     return render_template('history/history_select.html', HistoryFilterForm=FilterForm,
-                            title='Поиск истории болезни', histories=histories, pagination=pagination)
+                            title='Поиск истории болезни', histories=histories, pagination=pagination, 
+                            personal_data_list=personal_data_list, file_name=file_name)
 
 
 # Редактирование истории болезни
