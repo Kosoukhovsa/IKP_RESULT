@@ -3,9 +3,10 @@ import tempfile
 from datetime import datetime, timedelta
 from hashlib import md5
 
+import subprocess
 import pandas as pd
 from flask import (Blueprint, flash, jsonify, redirect, render_template,
-                   request, session, url_for)
+                   request, session, url_for, send_file)
 from flask_login import login_required
 from werkzeug.utils import secure_filename
 
@@ -45,6 +46,20 @@ history_blueprint = Blueprint('history',
                             template_folder='..templates/history')
 
 tempdirectory = tempfile.gettempdir()
+
+
+@history_blueprint.route('/download_report', methods = ['GET','POST'])
+@login_required
+def download_report():
+    flash('Отчет формируется. Подождите.', category="info")
+    command = 'jupyter nbconvert --to html --no-input ikp.ipynb --output ikp_report.html'
+    code = subprocess.call(command)  
+    if code != 0:
+        flash(f'Произошла ошибка: {code}', category="danger")
+        return redirect(url_for('main.index')) 
+    print(code)
+    return send_file('..\\ikp_report.html', as_attachment=True)
+
 
 # Загрузка персональной информации из файла
 @history_blueprint.route('/load_personal_data', methods = ['GET','POST'])
