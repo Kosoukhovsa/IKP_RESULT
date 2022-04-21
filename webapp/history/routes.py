@@ -53,11 +53,11 @@ tempdirectory = tempfile.gettempdir()
 def download_report():
     flash('Отчет формируется. Подождите.', category="info")
     command = 'jupyter nbconvert --to html --no-input ikp.ipynb --output ikp_report.html'
-    code = subprocess.call(command)  
-    if code != 0:
-        flash(f'Произошла ошибка: {code}', category="danger")
+    try:
+        subprocess.call(command) 
+    except:
+        flash(f'Произошла ошибка', category="danger")
         return redirect(url_for('main.index')) 
-    print(code)
     return send_file('..\\ikp_report.html', as_attachment=True)
 
 
