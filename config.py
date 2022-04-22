@@ -22,11 +22,12 @@ class DevelopmentConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'postgres://postgres:12345qwz@localhost/ikp_dev'
 
 class TestingConfig(Config):
-    DEBUG = True
-    DEBUG_TB_ENABLED = False
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    WTF_CSRF_ENABLED = False
+    #DEBUG = True
+    #DEBUG_TB_ENABLED = False
+    #SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    #SQLALCHEMY_TRACK_MODIFICATIONS = False
+    #WTF_CSRF_ENABLED = False
+    SQLALCHEMY_DATABASE_URI = 'postgres://postgres:12345qwz@localhost:5433/ikp_restore'
 
 class ProductionConfig(Config):
     #SQLALCHEMY_DATABASE_URI = 'postgres://nkvnpwkgmwvbxq:74691526b4438dfe472d020a544a88b5b1777d9735d50a963118ef7238ea09e9@ec2-79-125-26-232.eu-west-1.compute.amazonaws.com:5432/dc13mevsrvuj4j'

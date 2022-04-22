@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from hashlib import md5
 
 import subprocess
+import shlex
 import pandas as pd
 from flask import (Blueprint, flash, jsonify, redirect, render_template,
                    request, session, url_for, send_file)
@@ -52,13 +53,15 @@ tempdirectory = tempfile.gettempdir()
 @login_required
 def download_report():
     flash('Отчет формируется. Подождите.', category="info")
+    #command = './venv/bin/jupyter nbconvert --to html --no-input ikp.ipynb --output ikp_report.html'
     command = 'jupyter nbconvert --to html --no-input ikp.ipynb --output ikp_report.html'
+    args = shlex.split(command)
     try:
-        subprocess.call(command) 
-    except:
-        flash(f'Произошла ошибка', category="danger")
+        subprocess.Popen(args) 
+    except Exception as e:
+        flash(f'Произошла ошибка: {e}', category="danger")
         return redirect(url_for('main.index')) 
-    return send_file('..\\ikp_report.html', as_attachment=True)
+    return send_file('../ikp_report.html', as_attachment=True)
 
 
 # Загрузка персональной информации из файла
