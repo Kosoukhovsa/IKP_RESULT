@@ -46,6 +46,11 @@ def create_app(object_name):
     from .analytics.dashapp11_callbacks import register_callback as register_callback_app11
     register_dashapps(app, 'Показатели распределения', 'dashapp1_1',layout_app_11, register_callback_app11)
 
+  # Добавленние аналитического приложения 2
+    from .analytics.dashapp12_layout import layout as layout_app_12
+    from .analytics.dashapp12_callbacks import register_callback as register_callback_app12
+    register_dashapps(app, 'Общая статистика', 'dashapp1_2',layout_app_12, register_callback_app12)
+
 
     return app
 

@@ -2,6 +2,7 @@ import os
 import pandas as pd
 from dash.dependencies import Input
 from dash.dependencies import Output
+import dash_bootstrap_components as dbc
 import plotly.graph_objs as go
 from datetime import datetime as dt
 import dash_core_components as dcc
@@ -13,24 +14,6 @@ from ..main.models import Event
 from flask import current_app, session
 from datetime import datetime
 
-'''
-basedir = os.path.abspath(os.path.dirname(__file__))
-path_name1 = os.path.join(basedir, 'patients_m16.csv')
-path_name2 = os.path.join(basedir, 'patients_m17.csv')
-patients_m16 = pd.read_csv(path_name1)
-patients_m17 = pd.read_csv(path_name2)
-patients_m16.columns = ['Height', 'Weight', 'ID', 'FIO', 'Sex', 'Age', 'DateFrom', 'Diagnosis', 'DiagnosisOthers','BloodGroup','Resus', 'Age','IndexWeight','IndexGroup']
-patients_m17.columns = ['Height', 'Weight', 'ID', 'FIO', 'Sex', 'Age', 'DateFrom', 'Diagnosis', 'DiagnosisOthers','BloodGroup','Resus', 'Height', 'Age','IndexWeight','IndexGroup']
-patients_m16.DateFrom = pd.to_datetime(patients_m16.DateFrom)
-#patients_m16['DateFrom'] = dt.strptime(str(patients_m16['DateFrom']),'%Y-%m-%d')
-
-
-app = current_app._get_current_object()
-with app.app_context():
-    DB_Events = Event.query.all()
-    DF_Events = pd.DataFrame(DB_Events, columns=['id','description','type'])
-'''
-
 
 def register_callback(dashapp):
     @dashapp.callback(Output('html_output_table','children'),
@@ -38,8 +21,6 @@ def register_callback(dashapp):
                      Input('html_input_date_range','end_date') ])
 
     def update_table(start_date, end_date):
-        c_engine = db.get_engine()
-        DB_Events = Event.query.all()
         sql_query = '''select
             h.hist_number, -- Номер истории
             p.id as patient_id,
@@ -152,28 +133,46 @@ def register_callback(dashapp):
                     i['ФИО'] = finded_snils['fio']
                     i['СНИЛС'] = finded_snils['snils']
         #print(df_selected.columns)
+ 
+        #return(dbc.Table.from_dataframe(df_selected, striped=True, bordered=True, hover=True))
+
 
         return(dash_table.DataTable(
             id='datatable-interactivity',
             columns=[{"name": i, "id": i} for i in df_selected.columns],
             data=df_selected_dict,
+            fixed_rows={'headers': True},
             fixed_columns=1,
             #editable=True,
-            filter_action="native",
-            sort_action="native",
-            sort_mode="multi",
+            #filter_action="native",
+            #sort_action="native",
+            #sort_mode="multi",
             #column_selectable="single",
             #row_selectable="multi",
-            style_data={
-            'whiteSpace': 'normal',
-            'height': 'auto'},
+            #style_data={
+            #'whiteSpace': 'normal',
+            #'height': 'auto'
+            #},
             style_table={
-            'maxHeight': '600px',
-            'maxWeight': '500px',
+            #'maxHeight': '600px',
+            #'maxWeight': '500px',
             'overflowY': 'scroll',
             'overflowX': 'scroll'},
-            style_cell = {"fontFamily": "Arial", "size": 10, 'textAlign': 'left','padding':15},
+            style_cell = {
+                "fontFamily": "Arial", 
+                "size": 10, 
+                'textAlign': 'left',
+                'padding':15,
+                'whiteSpace': 'normal',
+                'height': 'auto',
+                'minWidth': 95, 'maxWidth': 195, #'width': 110
+                },
             style_header ={
             'backgroundColor': 'grey',
-            'fontWeight': 'bold'}
+            'height': 'auto',
+            #'whiteSpace': 'normal',
+            #'padding':15,
+            #'textAlign': 'left',
+            'fontWeight': 'bold'
+            }
         ))

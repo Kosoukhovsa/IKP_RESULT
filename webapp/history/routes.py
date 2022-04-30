@@ -53,17 +53,19 @@ tempdirectory = tempfile.gettempdir()
 @login_required
 def download_report():
     flash('Отчет формируется. Подождите.', category="info")
-    #command = './venv/bin/jupyter nbconvert --to html --no-input ikp.ipynb --output ikp_report.html'
-    command = 'jupyter nbconvert --to html --no-input ikp.ipynb --output ikp_report.html'
+    env = os.environ.get("APP_CONFIG")
+    if env.capitalize() == 'Production':
+        command = './venv/bin/jupyter nbconvert --to html --no-input ikp.ipynb --output ikp_report.html'
+    else:
+        command = 'jupyter nbconvert --to html --no-input ikp.ipynb --output ikp_report.html'
     args = shlex.split(command)
     try:
         subprocess.Popen(args) 
+        return send_file('../ikp_report.html', as_attachment=True)
     except Exception as e:
         flash(f'Произошла ошибка: {e}', category="danger")
-        return redirect(url_for('main.index')) 
-    return send_file('../ikp_report.html', as_attachment=True)
-
-
+        return redirect(url_for('main.index'))  
+        
 # Загрузка персональной информации из файла
 @history_blueprint.route('/load_personal_data', methods = ['GET','POST'])
 @login_required

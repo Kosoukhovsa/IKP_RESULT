@@ -9,7 +9,7 @@ def Navbar():
         dbc.DropdownMenu(
             children = [
                 dbc.DropdownMenuItem('Реестр пациентов',href='/dashapp1_1', external_link = True),
-                dbc.DropdownMenuItem('Общая статистика',href='/dashapp1_2', external_link = True),
+                dbc.DropdownMenuItem('Общее количество пациентов',href='/dashapp1_2', external_link = True),
                 dbc.DropdownMenuItem('Количественные показатели',href='/dashapp1_3', external_link = True),
                 dbc.DropdownMenuItem('Качественные показатели',href='/dashapp1_4', external_link = True)
             ],
