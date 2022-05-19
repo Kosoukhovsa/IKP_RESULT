@@ -41,15 +41,20 @@ def create_app(object_name):
     from .analytics.homepage import HomePage
     register_dashapps(app, 'Главная страница аналитики', 'analytics/home', HomePage, None)
 
-    # Добавленние аналитического приложения 1
+    # Добавленние аналитического приложения 1 - реестр пациентов
     from .analytics.dashapp11_layout import layout as layout_app_11
     from .analytics.dashapp11_callbacks import register_callback as register_callback_app11
     register_dashapps(app, 'Показатели распределения', 'dashapp1_1',layout_app_11, register_callback_app11)
 
-  # Добавленние аналитического приложения 2
+  # Добавленние аналитического приложения 2 - общая статистика
     from .analytics.dashapp12_layout import layout as layout_app_12
     from .analytics.dashapp12_callbacks import register_callback as register_callback_app12
     register_dashapps(app, 'Общая статистика', 'dashapp1_2',layout_app_12, register_callback_app12)
+
+  # Добавленние аналитического приложения 3 - количественные показатели
+    from .analytics.dashapp13_layout import layout as layout_app_13
+    from .analytics.dashapp13_callbacks import register_callback as register_callback_app13
+    register_dashapps(app, 'Общая статистика', 'dashapp1_3',layout_app_13, register_callback_app13)
 
 
     return app
