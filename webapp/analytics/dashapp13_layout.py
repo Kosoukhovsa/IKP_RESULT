@@ -12,7 +12,7 @@ from datetime import datetime as dt
 import dash_table
 from webapp import db
 from .navbar import Navbar
-from .global_style import GLOBAL_STYLE
+from .global_style import GLOBAL_STYLE, CARD_STYLE
 
 nav = Navbar()
 # Фильтры
@@ -35,13 +35,14 @@ filter_kf = dcc.Dropdown(
   placeholder='Выберите показатель',
   id = 'html_filter_kf')
 
+
 # Таблица с общей статистикой
 card_table_1 = dbc.Card(
         dbc.CardBody([
             html.H4('Статистика показателя', className="card-title"),
             html.Div(id='html_output_table')#, style={'marginLeft': 15}
                       ]
-                    )
+                    ), color="light", outline=True
                )
 # График
 card_graph_1 = dbc.Card(
@@ -49,28 +50,39 @@ card_graph_1 = dbc.Card(
             html.H4('Распределение показателя', className="card-title"),
             dcc.Graph(id = 'kf_output_graph')
                       ]
-                    )
+                    ), color="light", outline=True
                )
-#out_graph_1 = dcc.Graph(id = 'kf_output_graph')
-               
 
+# Результат t-test
+card_text_1 = dbc.Card(
+        dbc.CardBody([
+            html.H4('Влияние пола на значение показателя', className="card-title"),
+            html.Div(id='html_output_text')#, style={'marginLeft': 15}
+                      ]
+                    ), color="light", outline=True
+               )
 
 # Общая статистика
 layout = html.Div(style=GLOBAL_STYLE, children=[
     nav,
-    html.Div(id='html_hidden_div', style = {'display': 'block'}),    
+    html.Div(id='html_hidden_div', style = {'display': 'block'}), 
+      
     dbc.Row([      
       dbc.Col([
           html.Label('Пол пациента'),
           html.Div( filter_sex)], width=2),          
       dbc.Col([
-          html.Label('Группа исследования'),
-          html.Div( filter_kf)], width=10),          
-          ], style={'marginTop': 15, 'marginBottom': 15, 'marginLeft': 5, 'marginLeft': 10}),
+          html.Label('Анализируемый показатель'),
+          html.Div( filter_kf)], width=8),          
+          ], style={'marginTop': 15, 'marginBottom': 15, 'marginLeft': 10}),
+
     dbc.Row(
-      dbc.Col(card_table_1, width=12)
+      dbc.Col(card_table_1, width=10),style=CARD_STYLE
             ),
     dbc.Row(
-      dbc.Col(card_graph_1, width=12)
+      dbc.Col(card_graph_1, width=10),style=CARD_STYLE
+            ),
+    dbc.Row(
+      dbc.Col(card_text_1, width=10),style=CARD_STYLE
             )
     ])

@@ -15,6 +15,9 @@ from .db_tools import get_short_hist_data
 #from ..main.models import Event
 #from flask import current_app, session
 from datetime import datetime
+from scipy.stats import ttest_ind
+from scipy.stats import chi2_contingency
+from textwrap import dedent
 
 def register_callback(dashapp):
     @dashapp.callback([Output('html_filter_kf','options'),
@@ -36,7 +39,8 @@ def register_callback(dashapp):
       return kf_otions, 'Возраст'
 
     @dashapp.callback([Output('html_output_table','children'),
-                       Output('kf_output_graph','figure')],
+                       Output('kf_output_graph','figure'),
+                       Output('html_output_text','children')],
                     [ Input('html_filter_sex', 'value' ), 
                       Input('html_filter_kf', 'value')
                      ])
@@ -71,8 +75,29 @@ def register_callback(dashapp):
                             )
           #fig.show(config={'displaylogo':False})
 
+          # Результат тестирования
+          # Возраст          
+          df_m_age = df_hist[(df_hist['age'] > 10) & (df_hist['sex'] == 'M')]
+          df_f_age = df_hist[(df_hist['age'] > 10) & (df_hist['sex'] == 'F')]
 
-          return dbc.Table.from_dataframe(total_table, striped=True, bordered=True, hover=True), fig
+          stat, p = ttest_ind(df_m_age['age'], df_f_age['age'])          
+
+          if p <= 0.05:
+              p_result = 'Распределение отличается по полу'
+          else:
+              p_result = 'Нет различия в распределении возраста между мужчинами и женщинами'
+
+          result_text = dedent(f"""\
+            Показатель: Возраст\
+            Результаты сравнения возраста: p-value = {round(p, 3)}\
+            {stat}\
+            {p_result}  
+            """)
+          
+          print(result_text)
+
+          return(dbc.Table.from_dataframe(total_table, striped=True, bordered=True, hover=True), 
+                 fig, result_text)
 
         elif filter_kf in['Рост','Вес','ИМТ']:
           pass
