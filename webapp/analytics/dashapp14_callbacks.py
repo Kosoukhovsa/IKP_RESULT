@@ -65,7 +65,7 @@ def get_side_statistics(filter_sex):
 
   result_text = [
     html.P("Показатель: Сторона поражения", className="card-text"),
-    html.P(f"Результаты сравнения: хи-квадрат = {round(stat, 3)}, p-value: {round(p,5)}", className="card-text"),
+    html.P(f"Результаты сравнения: хи-квадрат = {stat}, p-value: {round(p,5)}", className="card-text"),
     html.P(p_result, className="card-text"),
   ]
 
