@@ -121,6 +121,39 @@ def get_observations():
         df_hevents = pd.read_sql_query(str_observations, db.engine)
         return df_hevents
 
+def get_asa():          
+        """
+        Получить данные опросника ASA из госпитализации
+        """ 
+        sql_str_asa = """
+        -- Данные опросника ASA из госпитализации
+        select 
+        rg.description as research_group, -- Группа исследования
+        p.id as patient_id,
+        he.event_id,
+        case when p.sex = '1' then 'M' else 'F' end as sex , -- Пол
+        psr.response_str as "ASA"
+        from "ProfileSectionResponse" psr 
+        left outer join "Patient" p on
+        psr.patient_id  = p.id 
+        left join "HistoryEvent" he on 
+        psr.clinic_id = he.clinic_id and 
+        psr.history_id = he.history_id and 
+        psr.patient_id = he.patient_id and 
+        psr.history_event_id = he.id 
+        left join "History" h on 
+        psr.clinic_id = h.clinic_id  and 
+        psr.history_id = h.id and 
+        psr.patient_id = h.patient_id 
+        left outer join "ResearchGroup" rg on 
+        h.research_group_id = rg.id and 
+        h.clinic_id = rg.clinic_id 
+        where psr.profile_id = 2 and he.event_id = 9 
+        ;
+        """
+        df_asa = pd.read_sql_query(sql_str_asa, db.engine)
+        return df_asa
+
 def get_research_groups():          
         """
         Получить список групп исследования
