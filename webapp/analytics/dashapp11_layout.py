@@ -7,11 +7,12 @@ import pandas as pd
 from datetime import datetime as dt
 import dash_table
 from .navbar import Navbar
+from .global_style import GLOBAL_STYLE
 
 nav = Navbar()
 # Общий анализ без разбиения на группы
 
-layout = html.Div(children=[
+layout = html.Div(style=GLOBAL_STYLE, children=[
 nav,
 dbc.Row(dbc.Col(html.H3('Реестр пациентов'), width={'size':6,'offset':3}, style={'marginTop': 30, 'marginBottom': 15})),
 dbc.Row([
@@ -27,11 +28,10 @@ dbc.Row([
 dbc.Row(
   dbc.Col(
   dbc.Card(
-    dbc.CardBody([
-        html.H4('Общая статистика!', className="card-title"),
+    dbc.CardBody([        
         html.Div(id='html_output_table')#, style={'marginLeft': 15}
                   ]
-                )
+                ), color="light", outline=True
           )
         )
        ),      
