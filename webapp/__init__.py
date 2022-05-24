@@ -44,7 +44,7 @@ def create_app(object_name):
     # Добавленние аналитического приложения 1 - реестр пациентов
     from .analytics.dashapp11_layout import layout as layout_app_11
     from .analytics.dashapp11_callbacks import register_callback as register_callback_app11
-    register_dashapps(app, 'Показатели распределения', 'dashapp1_1',layout_app_11, register_callback_app11)
+    register_dashapps(app, 'Реестр пациентов', 'dashapp1_1',layout_app_11, register_callback_app11)
 
   # Добавленние аналитического приложения 2 - общая статистика
     from .analytics.dashapp12_layout import layout as layout_app_12
@@ -54,12 +54,17 @@ def create_app(object_name):
   # Добавленние аналитического приложения 3 - количественные показатели
     from .analytics.dashapp13_layout import layout as layout_app_13
     from .analytics.dashapp13_callbacks import register_callback as register_callback_app13
-    register_dashapps(app, 'Общая статистика', 'dashapp1_3',layout_app_13, register_callback_app13)
+    register_dashapps(app, 'Количественные показатели', 'dashapp1_3',layout_app_13, register_callback_app13)
 
   # Добавленние аналитического приложения 4 - качественные показатели
     from .analytics.dashapp14_layout import layout as layout_app_14
     from .analytics.dashapp14_callbacks import register_callback as register_callback_app14
-    register_dashapps(app, 'Общая статистика', 'dashapp1_4',layout_app_14, register_callback_app14)
+    register_dashapps(app, 'Качественные показатели', 'dashapp1_4',layout_app_14, register_callback_app14)
+
+  # Добавленние аналитического приложения 5 - общая статистика по группам
+    from .analytics.dashapp21_layout import layout as layout_app_21
+    from .analytics.dashapp21_callbacks import register_callback as register_callback_app21
+    register_dashapps(app, 'Общая статистика по группам', 'dashapp2_1',layout_app_21, register_callback_app21)
 
 
     return app

@@ -19,24 +19,24 @@ def Navbar():
                         ),
         dbc.DropdownMenu(
             children = [
-                dbc.DropdownMenuItem('Общая статистика по группе',href='/dashapp2_1', external_link = True),
+                dbc.DropdownMenuItem('Общая статистика по группам',href='/dashapp2_1', external_link = True),
                 dbc.DropdownMenuItem('Количественные показатели',href='/dashapp2_2', external_link = True),
                 dbc.DropdownMenuItem('Качественные показатели',href='/dashapp2_3', external_link = True)
             ],
             nav=True,
             in_navbar = True,
-            label = 'Анализ показателей одной группы'
+            label = 'Анализ по группам'
                         ),
-        dbc.DropdownMenu(
-            children = [
-                dbc.DropdownMenuItem('Общая статистика',href='/dashapp3_1', external_link = True),
-                dbc.DropdownMenuItem('Количественные показатели',href='/dashapp3_2', external_link = True),
-                dbc.DropdownMenuItem('Качественные показатели',href='/dashapp3_3', external_link = True)
-            ],
-            nav=True,
-            in_navbar = True,
-            label = 'Сравнительный анализ групп'
-                        ),
+        #dbc.DropdownMenu(
+        #    children = [
+        #        dbc.DropdownMenuItem('Общая статистика',href='/dashapp3_1', external_link = True),
+        #        dbc.DropdownMenuItem('Количественные показатели',href='/dashapp3_2', external_link = True),
+        #        dbc.DropdownMenuItem('Качественные показатели',href='/dashapp3_3', external_link = True)
+        #    ],
+        #    nav=True,
+        #    in_navbar = True,
+        #    label = 'Сравнительный анализ групп'
+        #                ),
                             ],
     brand = 'ИКП',
     brand_href = "/",
@@ -44,7 +44,7 @@ def Navbar():
     brand_external_link = True,
     color = 'secondary',
     dark = True,
-    className = 'text-uppercase font-weight-bold px-3'
+    className = 'text-uppercase font-weight-bold px-3 justify-content-between'
     )
 
     return navbar

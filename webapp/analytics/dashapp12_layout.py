@@ -1,3 +1,7 @@
+"""
+Дашборд для вывода общего количества пациентов
+"""
+
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
@@ -9,6 +13,8 @@ import dash_table
 from webapp import db
 from .navbar import Navbar
 from .global_style import GLOBAL_STYLE
+
+
 
 nav = Navbar()
 # Фильтры
