@@ -14,6 +14,7 @@ from .db_tools import get_short_hist_data, get_ind_values, get_observations, get
 from datetime import datetime
 import statsmodels.api as sm
 from statsmodels.formula.api import ols
+#from loguru import logger
 
 
 def get_age_stat(filter_group):
@@ -196,7 +197,6 @@ def get_observations_stat(filter_group):
           html.P(result_text, className="card-text")
           )
 
-
 def register_callback(dashapp):
     @dashapp.callback([Output('html_filter_group','options'),
                       Output('html_filter_group','value')],
@@ -217,10 +217,14 @@ def register_callback(dashapp):
                     [ Input('html_filter_group', 'value' ), 
                       Input('html_filter_kf', 'value')
                      ])
+    #@logger.catch
     def get_total_table(filter_group, filter_kf):          
         """"
         Формирование таблицы с основной статистикой
         """
+        if filter_group is None:
+          filter_group = get_research_groups()
+
         if filter_kf == 'Возраст':
           return get_age_stat(filter_group)
 
