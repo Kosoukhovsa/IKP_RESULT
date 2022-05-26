@@ -10,61 +10,68 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
 from webapp import db
-from .db_tools import get_short_hist_data, get_ind_values, get_observations
+from .db_tools import get_short_hist_data, get_ind_values, get_observations, get_research_groups
 from datetime import datetime
-from scipy.stats import ttest_ind
-from scipy.stats import chi2_contingency
-from textwrap import dedent
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
 
 
-def get_age_stat(filter_sex):
+def get_age_stat(filter_group):
   """
   Функция подготавливает статистику по возрасту 
   """
   df_hist = get_short_hist_data()
 
   # Формирование таблицы
-  df_sex_age = df_hist[(df_hist['age'] > 10) & (df_hist['sex'].isin(filter_sex))]
-  df_sex_age['indicator'] = 'Возраст'
-  total_table = pd.pivot_table(df_sex_age, values = 'age', index = ['sex','indicator'],
-                                  aggfunc=['mean','min','max','std','median'])
+  df_group_age = df_hist[(df_hist['age'] > 10) & (df_hist['research_group'].isin(filter_group))]
+  df_group_age['indicator'] = 'Возраст'
+  total_table = pd.pivot_table(df_group_age, values = 'age', index = ['research_group','indicator'],
+                                 aggfunc=['mean','min','max','std','median'])
   total_table.reset_index(inplace=True)
-  total_table.columns = ['Пол','Показатель','Среднее','Min','Max','Ст откл','Медиана']
+  total_table.columns = ['Группа','Показатель','Среднее','Min','Max','Ст откл','Медиана']
   total_table=total_table.round(2)
 
   # График
-  fig = px.box(df_sex_age, x = 'sex', y= 'age',
-      color = 'sex',
-      points = 'all',
-    title='Распределение пациентов по полу и возрасту',
-    labels = {'sex':'Пол', 'age':'возраст'}
-    )
+  fig = px.box(df_group_age, x = 'research_group', y= 'age',
+              color = 'research_group',
+              points = 'all',
+              title='Распределение пациентов по возрасту в группах',
+              labels = {'research_group':'Группа', 'age':'Возраст'}
+              )
   fig.update_layout(paper_bgcolor='rgb(243, 243, 243)',
-                      plot_bgcolor='rgb(243, 243, 243)'
-                    )
+                  plot_bgcolor='rgb(243, 243, 243)'
+                 )
+  fig.update_layout(legend=dict(
+    orientation="h",
+    yanchor="top",
+    #y=1.02,
+    xanchor="right",
+    x=0.5
+                ))
+  fig.update_xaxes(showticklabels=False)
   #fig.show(config={'displaylogo':False})
 
   # Результат тестирования        
-  df_m_age = df_hist[(df_hist['age'] > 10) & (df_hist['sex'] == 'M')]
-  df_f_age = df_hist[(df_hist['age'] > 10) & (df_hist['sex'] == 'F')]
-  stat, p = ttest_ind(df_m_age['age'], df_f_age['age'])          
+  my_mod = ols('age ~ research_group', data = df_group_age).fit()
+  aov_table = sm.stats.anova_lm(my_mod)
+  p = aov_table['PR(>F)'][0]         
 
   if p <= 0.05:
-      p_result = 'Распределение отличается по полу'
+      p_result = 'Есть различия по возрасту между группами'
   else:
-      p_result = 'Нет различия в распределении возраста между мужчинами и женщинами'
+      p_result = 'Нет различий по возрасту между группами'
 
   result_text = [
     html.P("Показатель: Возраст", className="card-text"),
-    html.P(f"Результаты сравнения возраста: p-value = {round(p, 7)}", className="card-text"),
+    html.P(f"Результаты сравнения возраста по группам: ", className="card-text"),
+    dbc.Table.from_dataframe(aov_table, striped=True, bordered=True, hover=True),
     html.P(p_result, className="card-text"),
   ]
 
-  return(dbc.Table.from_dataframe(total_table, striped=True, bordered=True, hover=True), 
-          fig, 
-          html.P(result_text, className="card-text")  )
+  return [dbc.Table.from_dataframe(total_table, striped=True, bordered=True, hover=True), fig,
+          html.P(result_text, className="card-text")]
 
-def get_ind_stat(filter_sex, ind_id):
+def get_ind_stat(filter_group, ind_id):
   """
   Функция подготавливает статистику по показателям:
   ind_id = 1: рост
@@ -83,48 +90,52 @@ def get_ind_stat(filter_sex, ind_id):
   elif ind_id == 3:
     ind_text = 'ИМТ'
 
-  df_ind_b22 = df_ind_values[(df_ind_values['event_id']==3) 
+  df_ind_b33 = df_ind_values[(df_ind_values['event_id']==3) 
                             & (df_ind_values['ind_id'].isin([ind_id]))
-                            & (df_ind_values['sex'].isin(filter_sex))
+                            & (df_ind_values['research_group'].isin(filter_group))
                             ]
-  total_table = pd.pivot_table(df_ind_b22, values = 'num_value', index = ['sex','indicator'], 
-                              aggfunc=['mean','min','max','std','median'])                    
+  total_table = pd.pivot_table(df_ind_b33, values = 'num_value', index = ['research_group','indicator'], 
+                              aggfunc=['mean','min','max','std','median'])                   
   total_table.reset_index(inplace=True)
-  total_table.columns = ['Пол','Показатель','Среднее','Min','Max','Ст откл','Медиана']
+  total_table.columns = ['Группа исследования','Показатель','Среднее','Min','Max','Ст откл','Медиана']
   total_table=total_table.round(2)
 
   # График
-  fig = px.box(df_ind_b22, x='sex', y = 'num_value',
-             color = 'sex',
+  fig = px.box(df_ind_b33, x='research_group', y = 'num_value',
+             color = 'research_group',
              facet_col = 'indicator',
-             points = 'all',
-             title = 'Распределение показателя по полу',
-             labels = {'num_value':'Значение','sex':'Пол'}
-)
-
+             #points = 'all',
+             title = 'Распределение веса, роста, ИМТ по группам',
+             labels = {'num_value':'Значение','research_group':'Группа'}
+  )
   fig.update_layout(paper_bgcolor='rgb(243, 243, 243)',
-                      plot_bgcolor='rgb(243, 243, 243)'
-                    )
+                  plot_bgcolor='rgb(243, 243, 243)'
+                 )
+  fig.update_layout(legend=dict(
+    orientation="h",
+    yanchor="top",
+    #y=1.02,
+    xanchor="right",
+    x= 0.5
+  ))
+
+  fig.update_xaxes(showticklabels=False)
   #fig.show(config={'displaylogo':False})
 
   # Результат тестирования        
-  df_m_height = df_ind_values[(df_ind_values['event_id']==3) & 
-                            (df_ind_values['ind_id'].isin([ind_id])) & 
-                            (df_ind_values['sex'] == 'M')]
-  df_f_height = df_ind_values[(df_ind_values['event_id']==3) & 
-                            (df_ind_values['ind_id'].isin([ind_id])) & 
-                            (df_ind_values['sex'] == 'F')]
-
-  stat, p = ttest_ind(df_m_height['num_value'], df_f_height['num_value'])         
+  my_mod_h = ols('num_value ~ research_group', data = df_ind_b33).fit()
+  aov_table = sm.stats.anova_lm(my_mod_h)
+  p = aov_table['PR(>F)'][0]       
 
   if p <= 0.05:
-      p_result = 'Распределение отличается по полу'
+      p_result = 'Есть различия между группами'
   else:
-      p_result = 'Нет различия в распределении между мужчинами и женщинами'
+      p_result = 'Нет различий между группами'
 
   result_text = [
     html.P(f"Показатель: {ind_text}", className="card-text"),
-    html.P(f"Результаты сравнения: p-value = {round(p, 7)}", className="card-text"),
+    html.P("Результаты сравнения:"),
+    dbc.Table.from_dataframe(aov_table, striped=True, bordered=True, hover=True),
     html.P(p_result, className="card-text"),
   ]
 
@@ -133,49 +144,50 @@ def get_ind_stat(filter_sex, ind_id):
           html.P(result_text, className="card-text")
           )
 
-def get_observations_stat(filter_sex):
+def get_observations_stat(filter_group):
   """
   Функция подготавливает статистику по сроку наблюдения в месяцах:
   """
   df_hevents = get_observations()
 
   # Формирование таблицы
-  df_monthes_b22 = df_hevents[(df_hevents['sex'].isin(filter_sex))]
-  df_monthes_b22['indicator'] = 'Cрок наблюдения в месяцах'
-  total_table = pd.pivot_table(df_monthes_b22, values = 'monthes_observ', index = ['sex','indicator'], 
+  df_monthes_b39 = df_hevents[(df_hevents['research_group'].isin(filter_group))]
+  df_monthes_b39['indicator'] = 'Cрок наблюдения в месяцах'
+  total_table = pd.pivot_table(df_monthes_b39, values = 'monthes_observ', index = ['research_group','indicator'], 
                               aggfunc=['mean','min','max','std','median'])                  
   total_table.reset_index(inplace=True)
-  total_table.columns = ['Пол','Показатель','Среднее','Min','Max','Ст откл','Медиана']
+  total_table.columns = ['Группа исследования','Показатель','Среднее','Min','Max','Ст откл','Медиана']
   total_table=total_table.round(2)
 
   # График
-  fig = px.box(df_monthes_b22, x='sex', y = 'monthes_observ',
-             color = 'sex',
-             facet_col = 'indicator',
+  fig = px.box(df_monthes_b39, x='research_group', y = 'monthes_observ',
+             color = 'research_group',
+             #facet_col = 'indicator',
              points = 'all',
-             title = 'Распределение показателя по полу',
-             labels = {'monthes_observ':'Значение','sex':'Пол'}
+             title = 'Распределение показателя по группам',
+             labels = {'monthes_observ':'Значение','research_group':'Группа исследования'}
 )
 
   fig.update_layout(paper_bgcolor='rgb(243, 243, 243)',
                       plot_bgcolor='rgb(243, 243, 243)'
                     )
+  fig.update_xaxes(showticklabels=False)
   #fig.show(config={'displaylogo':False})
 
   # Результат тестирования        
-  df_m_monthes = df_monthes_b22[(df_monthes_b22['sex'] == 'M')]
-  df_f_monthes = df_monthes_b22[(df_monthes_b22['sex'] == 'F')]
-
-  stat, p = ttest_ind(df_m_monthes['monthes_observ'], df_f_monthes['monthes_observ'])        
+  model_monthes_observ = ols('monthes_observ ~ research_group', data = df_monthes_b39).fit()
+  aov_table_monthes_observ = sm.stats.anova_lm(model_monthes_observ)
+  p = aov_table_monthes_observ['PR(>F)'][0]        
 
   if p <= 0.05:
-      p_result = 'Распределение отличается по полу'
+      p_result = 'Распределение отличается по группам'
   else:
-      p_result = 'Нет различия в распределении между мужчинами и женщинами'
+      p_result = 'Нет различий между группами'
 
   result_text = [
     html.P(f"Показатель: Срок наблюдения в месяцах", className="card-text"),
-    html.P(f"Результаты сравнения: p-value = {round(p, 7)}", className="card-text"),
+    html.P("Результаты сравнения:", className="card-text"),
+    dbc.Table.from_dataframe(aov_table_monthes_observ, striped=True, bordered=True, hover=True),
     html.P(p_result, className="card-text"),
   ]
 
@@ -186,46 +198,40 @@ def get_observations_stat(filter_sex):
 
 
 def register_callback(dashapp):
-
-    @dashapp.callback([Output('html_filter_kf','options'),
-                      Output('html_filter_kf','value')],
+    @dashapp.callback([Output('html_filter_group','options'),
+                      Output('html_filter_group','value')],
                       [Input('html_hidden_div', 'style')]
                       )
-    def get_filter_kf(div_style):
+    def get_filter_group(div_style):
       """
-      Подготовка списка показателей
+      Подготовка списка групп исследования
       """
-      kf_list = [
-        'Возраст',
-        'Рост',
-        'Вес',
-        'ИМТ',
-        'Срок наблюдения'
-      ]
-      kf_otions = [{'label':group, 'value':group} for group in kf_list]
-      return kf_otions, 'Возраст'
+      research_group_otions = [{'label':group, 'value':group} for group in get_research_groups()]
+      research_group_values = get_research_groups()
+      return research_group_otions, research_group_values
 
     @dashapp.callback([Output('html_output_table','children'),
                        Output('kf_output_graph','figure'),
-                       Output('html_output_text','children')],
-                    [ Input('html_filter_sex', 'value' ), 
+                       Output('html_output_text','children')
+                      ],                       
+                    [ Input('html_filter_group', 'value' ), 
                       Input('html_filter_kf', 'value')
                      ])
-    def get_total_table(filter_sex, filter_kf):          
+    def get_total_table(filter_group, filter_kf):          
         """"
         Формирование таблицы с основной статистикой
         """
         if filter_kf == 'Возраст':
-          return get_age_stat(filter_sex)
+          return get_age_stat(filter_group)
 
         elif filter_kf == 'Рост':#,'Вес','ИМТ']:
-          return get_ind_stat(filter_sex, 1)
+          return get_ind_stat(filter_group, 1)
 
         elif filter_kf == 'Вес':#,'ИМТ']:
-          return get_ind_stat(filter_sex, 2)
+          return get_ind_stat(filter_group, 2)
 
         elif filter_kf == 'ИМТ':
-          return get_ind_stat(filter_sex, 3)
+          return get_ind_stat(filter_group, 3)
 
         elif filter_kf in['Срок наблюдения']:
-          return get_observations_stat(filter_sex)
+          return get_observations_stat(filter_group)

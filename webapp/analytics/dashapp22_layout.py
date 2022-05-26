@@ -24,8 +24,21 @@ filter_group = dcc.Dropdown(
   id = 'html_filter_group')
 
 ## По показателю
-filter_kf = dcc.Dropdown(  
-  multi=False,
+filter_kf = dcc.Dropdown(   
+  options = [
+   {'label':'Возраст', 'value':'Возраст'},
+   {'label':'Рост', 'value':'Рост'},
+   {'label':'Вес', 'value':'Вес'},
+   {'label':'ИМТ', 'value':'ИМТ'},
+   {'label':'Срок наблюдения', 'value':'Срок наблюдения'}    
+  #'Возраст',
+  #'Рост',
+  #'Вес',
+  #'ИМТ'
+  #{'label':'Все', 'value':'ALL'}
+  ],
+  value='Возраст',
+  multi=False,  
   placeholder='Выберите показатель',
   id = 'html_filter_kf')
 
@@ -64,11 +77,11 @@ layout = html.Div(style=GLOBAL_STYLE, children=[
     dbc.Row([      
       dbc.Col([
           html.Label('Группа исследования'),
-          html.Div( filter_group)], width=2),          
+          html.Div( filter_group)], width=6),          
       dbc.Col([
           html.Label('Анализируемый показатель'),
-          html.Div( filter_kf)], width=8),          
-          ], style={'marginTop': 15, 'marginBottom': 15, 'marginLeft': 10}),
+          html.Div( filter_kf)], width=6),          
+          ], style={'marginTop': 15, 'marginBottom': 15, 'marginLeft': 10, 'marginRight': 10}),
 
     dbc.Row(
       dbc.Col(card_table_1, width=10),style=CARD_STYLE
