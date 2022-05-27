@@ -154,7 +154,7 @@ def get_asa():
         df_asa = pd.read_sql_query(sql_str_asa, db.engine)
         return df_asa
 
-def get_research_groups():          
+def get_research_groups():                  
         """
         Получить список групп исследования
         """ 
@@ -166,6 +166,64 @@ def get_research_groups():
         """
         df_r_groups = pd.read_sql_query(str_sql, db.engine)
         return list(df_r_groups.value.unique())
+
+def get_b_days():
+        sql_str_b_days = """
+        -- Койко - дни
+        select 
+        --o.clinic_id ,
+        h.id as history_id,
+        --he.id ,
+        --he.date_begin,
+        --he.date_end ,
+        --o.time_begin ,
+        --o.time_end ,
+        --cast(operation_log.time_from as date) as oper_date_from,
+        --cast(operation_log.time_to as date) as oper_date_to,
+        rg.description as research_group, -- Группа исследования
+        --he.days1 , -- койко-день
+        case 
+        when (he.date_end - he.date_begin) > 0 then he.date_end - he.date_begin 
+        else 0 end as c_days1, -- общий койко-день
+        case 
+        when (cast(operation_log.time_from as date) - he.date_begin) > 0 then (cast(operation_log.time_from as date) - he.date_begin) 
+        else 0 end as c_days2, -- предоперационный койко-день
+        case 
+        when (he.date_end - cast(operation_log.time_to as date)) > 0 then (he.date_end - cast(operation_log.time_to as date)) 
+        else 0 end as c_days3 -- послеоперационный койко-день
+        from "HistoryEvent" he 
+        left outer join "History" as h on 
+        h.clinic_id  = he.clinic_id  and 
+        h.id = he.history_id 
+        left outer join "ResearchGroup" rg on 
+        h.research_group_id  = rg.id 
+        left outer join "Operation" o on 
+        he.clinic_id = o.clinic_id and 
+        he.history_id = o.history_id and 
+        he.id = o.hospital_id 
+        left outer join 
+        (
+        select ol.clinic_id as clinic_id,
+        ol.history_id as history_id,
+        ol.operation_id as operation_id,
+        min(ol.time_begin) as time_from,
+        max(ol.time_end) as time_to
+        from "OperationLog" ol 
+        group by
+        ol.clinic_id ,
+        ol.history_id ,
+        ol.operation_id
+        ) as operation_log on 
+        o.clinic_id = operation_log.clinic_id and 
+        o.history_id = operation_log.history_id and 
+        o.id = operation_log.operation_id 
+        where 
+        he.event_id in(3)
+        and (he.date_end - he.date_begin) > 0
+        ;
+        """
+        df_b_days = pd.read_sql(sql_str_b_days, db.engine)
+        return df_b_days
 
 def get_short_hist_data():          
         """
@@ -214,4 +272,36 @@ def get_short_hist_data():
 
         df_history = pd.read_sql_query(sql_str_hist, db.engine) 
         return df_history
+
+def get_oper_logs():
+        sql_str_oper_logs = """
+        -- Статистика по этапам операции
+        select 
+        ol. history_id as history_id,
+        rg.description as research_group,
+        ol. operation_id as operation_id,
+        os.description as operation_step,
+        os."order" as step_order,
+        ol.duration_min 
+        from "OperationLog" ol 
+        left join "OperationStep" os on 
+        ol.operation_step_id  = os.id 
+        left join "History" h on 
+        ol.clinic_id = h.clinic_id and 
+        ol.history_id = h.id 
+        left join "ResearchGroup" rg on 
+        h.research_group_id = rg.id 
+        where 
+        ol.duration_min is not null 
+        and ol.duration_min <= 500
+        order by 
+        ol.history_id,
+        ol.operation_id ,
+        --os."order" 
+        ol.duration_min desc
+        ;
+        """
+
+        df_op_logs = pd.read_sql(sql_str_oper_logs, db.engine)
+        return df_op_logs
 
