@@ -10,7 +10,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
 from webapp import db
-from .db_tools import get_short_hist_data, get_ind_values, get_observations, get_research_groups
+from .db_tools import get_short_hist_data, get_ind_values, get_observations, \
+                      get_research_groups, get_b_days, get_oper_logs
 from datetime import datetime
 import statsmodels.api as sm
 from statsmodels.formula.api import ols
@@ -197,6 +198,294 @@ def get_observations_stat(filter_group):
           html.P(result_text, className="card-text")
           )
 
+def get_b_days_stat(filter_group):
+  """
+  Общий койко-день
+  """
+
+  # Формирование таблицы
+  df_b_days = get_b_days()
+  df_b_days_b36 = df_b_days[(df_b_days['research_group'].isin(filter_group))]
+  df_b_days_b36['indicator'] = 'Общий койко-день'
+  df_b_days_b36.rename(columns={'c_days1':'value'}, inplace=True) 
+
+  total_table = pd.pivot_table(df_b_days_b36, values = 'value', index = ['research_group','indicator'], 
+                              aggfunc=['mean','min','max','std','median'])
+  total_table.reset_index(inplace=True)
+  total_table.columns = ['Группа исследования','Показатель','Среднее','Min','Max','Ст откл','Медиана']
+  total_table=total_table.round(2)
+  # График
+  fig = px.box(df_b_days_b36, x= 'research_group', y = 'value',
+             color = 'research_group',
+             points = 'all',
+            title = 'Общий койко-день' ,
+             labels = {'research_group':'Группа','value':'Дней'} 
+            )
+
+  fig.update_xaxes(showticklabels=False)
+  fig.update_layout(legend=dict(
+      orientation="h",
+      #yanchor="top",
+      #y=1.02,
+      xanchor="right",
+      x= 1))
+  fig.update_layout(paper_bgcolor='rgb(243, 243, 243)',
+                    plot_bgcolor='rgb(243, 243, 243)'
+                  )
+  # Результат тестирования 
+  data = df_b_days[(df_b_days['c_days1']>0) & (df_b_days['research_group'].isin(filter_group))]
+  my_mod_days_all = ols('c_days1 ~ research_group', data).fit()
+  aov_table_days_all = sm.stats.anova_lm(my_mod_days_all)
+  p = aov_table_days_all['PR(>F)'][0]
+
+  if p <= 0.05:
+      p_result = 'Распределение отличается по группам'
+  else:
+      p_result = 'Нет различий между группами'
+
+  result_text = [
+    html.P(f"Показатель:  Общий койко-день", className="card-text"),
+    html.P("Результаты сравнения:", className="card-text"),
+    dbc.Table.from_dataframe(aov_table_days_all, striped=True, bordered=True, hover=True),
+    html.P(p_result, className="card-text"),
+  ]
+
+  return(dbc.Table.from_dataframe(total_table, striped=True, bordered=True, hover=True), 
+          fig, 
+          html.P(result_text, className="card-text")
+          )
+
+def get_b_days_before_stat(filter_group):
+  """
+  Предоперационный койко-день
+  """
+
+  # Формирование таблицы
+  df_b_days = get_b_days()
+  df_b_days_b36 = df_b_days[(df_b_days['research_group'].isin(filter_group))]
+  df_b_days_b36['indicator'] = 'Предоперационный койко-день'
+  df_b_days_b36.rename(columns={'c_days2':'value'}, inplace=True) 
+
+  total_table = pd.pivot_table(df_b_days_b36, values = 'value', index = ['research_group','indicator'], 
+                              aggfunc=['mean','min','max','std','median'])
+  total_table.reset_index(inplace=True)
+  total_table.columns = ['Группа исследования','Показатель','Среднее','Min','Max','Ст откл','Медиана']
+  total_table=total_table.round(2)
+  # График
+  fig = px.box(df_b_days_b36, x= 'research_group', y = 'value',
+             color = 'research_group',
+             points = 'all',
+            title = 'Предоперационный койко-день' ,
+             labels = {'research_group':'Группа','value':'Дней'} 
+            )
+
+  fig.update_xaxes(showticklabels=False)
+  fig.update_layout(legend=dict(
+      orientation="h",
+      #yanchor="top",
+      #y=1.02,
+      xanchor="right",
+      x= 1))
+  fig.update_layout(paper_bgcolor='rgb(243, 243, 243)',
+                    plot_bgcolor='rgb(243, 243, 243)'
+                  )
+  # Результат тестирования 
+  data = df_b_days[(df_b_days['c_days2']>0) & (df_b_days['research_group'].isin(filter_group))]
+  my_mod_days_all = ols('c_days2 ~ research_group', data).fit()
+  aov_table_days_all = sm.stats.anova_lm(my_mod_days_all)
+  p = aov_table_days_all['PR(>F)'][0]
+
+  if p <= 0.05:
+      p_result = 'Распределение отличается по группам'
+  else:
+      p_result = 'Нет различий между группами'
+
+  result_text = [
+    html.P(f"Показатель:  Предоперационный койко-день", className="card-text"),
+    html.P("Результаты сравнения:", className="card-text"),
+    dbc.Table.from_dataframe(aov_table_days_all, striped=True, bordered=True, hover=True),
+    html.P(p_result, className="card-text"),
+  ]
+
+  return(dbc.Table.from_dataframe(total_table, striped=True, bordered=True, hover=True), 
+          fig, 
+          html.P(result_text, className="card-text")
+          )
+  
+def get_b_days_after_stat(filter_group):
+  """
+  Послеоперационный койко-день
+  """
+
+  # Формирование таблицы
+  df_b_days = get_b_days()
+  df_b_days_b36 = df_b_days[(df_b_days['research_group'].isin(filter_group))]
+  df_b_days_b36['indicator'] = 'Послеоперационный койко-день'
+  df_b_days_b36.rename(columns={'c_days3':'value'}, inplace=True) 
+
+  total_table = pd.pivot_table(df_b_days_b36, values = 'value', index = ['research_group','indicator'], 
+                              aggfunc=['mean','min','max','std','median'])
+  total_table.reset_index(inplace=True)
+  total_table.columns = ['Группа исследования','Показатель','Среднее','Min','Max','Ст откл','Медиана']
+  total_table=total_table.round(2)
+  # График
+  fig = px.box(df_b_days_b36, x= 'research_group', y = 'value',
+             color = 'research_group',
+             points = 'all',
+            title = 'Послеоперационный койко-день' ,
+             labels = {'research_group':'Группа','value':'Дней'} 
+            )
+
+  fig.update_xaxes(showticklabels=False)
+  fig.update_layout(legend=dict(
+      orientation="h",
+      #yanchor="top",
+      #y=1.02,
+      xanchor="right",
+      x= 1))
+  fig.update_layout(paper_bgcolor='rgb(243, 243, 243)',
+                    plot_bgcolor='rgb(243, 243, 243)'
+                  )
+  # Результат тестирования 
+  data = df_b_days[(df_b_days['c_days3']>0) & (df_b_days['research_group'].isin(filter_group))]
+  my_mod_days_all = ols('c_days3 ~ research_group', data).fit()
+  aov_table_days_all = sm.stats.anova_lm(my_mod_days_all)
+  p = aov_table_days_all['PR(>F)'][0]
+
+  if p <= 0.05:
+      p_result = 'Распределение отличается по группам'
+  else:
+      p_result = 'Нет различий между группами'
+
+  result_text = [
+    html.P(f"Показатель:  Послеоперационный койко-день", className="card-text"),
+    html.P("Результаты сравнения:", className="card-text"),
+    dbc.Table.from_dataframe(aov_table_days_all, striped=True, bordered=True, hover=True),
+    html.P(p_result, className="card-text"),
+  ]
+
+  return(dbc.Table.from_dataframe(total_table, striped=True, bordered=True, hover=True), 
+          fig, 
+          html.P(result_text, className="card-text")
+          )
+
+def get_operations_stat(filter_group):
+  """
+  Общая длительность операции
+  """
+
+  # Формирование таблицы
+  df_op_time = get_oper_logs()
+  df_op_time_b38 = df_op_time[(df_op_time['research_group'].isin(filter_group))]
+  df_op_time_b38_gr = df_op_time_b38.groupby(['research_group','operation_id']).agg({'duration_min':'sum'}).reset_index()
+
+  total_table = pd.pivot_table(df_op_time_b38_gr, values = 'duration_min', index = ['research_group'], 
+                              aggfunc=['mean','min','max','std','median'])
+  total_table.reset_index(inplace=True)
+  total_table.columns = ['Группа исследования','Среднее','Min','Max','Ст откл','Медиана']
+  total_table=total_table.round(2)
+  # График
+  fig = px.box(df_op_time_b38_gr, x= 'research_group', y = 'duration_min',
+             color = 'research_group',
+             points = 'all',
+             
+            title = 'Длительность операции по группам' ,
+             labels = {'research_group':'Группа','duration_min':'Минуты'} 
+            )
+
+  fig.update_xaxes(showticklabels=False)
+  fig.update_layout(legend=dict(
+      orientation="h",
+      #yanchor="top",
+      #y=1.02,
+      xanchor="right",
+      x= 1))
+  fig.update_layout(paper_bgcolor='rgb(243, 243, 243)',
+                    plot_bgcolor='rgb(243, 243, 243)'
+                  )
+  fig.for_each_annotation(lambda a: a.update(text=a.text.split(" ")[0]))
+
+  # Результат тестирования  
+  data = df_op_time_b38_gr[(df_op_time_b38_gr['research_group'].isin(filter_group))]
+  my_mod = ols('duration_min ~ research_group', data).fit()
+  aov_table = sm.stats.anova_lm(my_mod)
+  p = aov_table['PR(>F)'][0]
+
+  if p <= 0.05:
+      p_result = 'Распределение отличается по группам'
+  else:
+      p_result = 'Нет различий между группами'
+
+  result_text = [
+    html.P(f"Показатель:  Общая длительность операции", className="card-text"),
+    html.P("Результаты сравнения:", className="card-text"),
+    dbc.Table.from_dataframe(aov_table, striped=True, bordered=True, hover=True),
+    html.P(p_result, className="card-text"),
+  ]
+
+  return(dbc.Table.from_dataframe(total_table, striped=True, bordered=True, hover=True), 
+          fig, 
+          html.P(result_text, className="card-text")
+          )
+
+def get_operations_step_stat(filter_group):
+  """
+  Длительность каждого этапа операции
+  """
+
+  # Формирование таблицы
+  df_op_time = get_oper_logs()
+  df_op_time_b38 = df_op_time[(df_op_time['research_group'].isin(filter_group))
+                             &(df_op_time['duration_min']>0)]
+  total_table = pd.pivot_table(df_op_time_b38, values = 'duration_min', index = ['research_group','step_order','operation_step',], 
+                              aggfunc=['mean','min','max','std','median'])
+  total_table.reset_index(inplace=True)
+  total_table.columns = ['Группа исследования','Номер этапа','Этап','Среднее','Min','Max','Ст откл','Медиана']
+  total_table=total_table.round(2)
+  # График
+  fig = px.box(df_op_time_b38, x= 'operation_step', y = 'duration_min',
+             color = 'operation_step',
+             facet_col = 'research_group',
+            title = 'Этапы операции по группам' ,
+             labels = {'research_group':'Группа','duration_min':'Минуты', 'operation_step':'Этап операции'} 
+            )
+
+  fig.update_xaxes(showticklabels=False)
+  fig.update_layout(legend=dict(
+      orientation="h",
+      #yanchor="top",
+      #y=1.02,
+      xanchor="right",
+      x= 1))
+  fig.update_layout(paper_bgcolor='rgb(243, 243, 243)',
+                    plot_bgcolor='rgb(243, 243, 243)'
+                  )
+  fig.for_each_annotation(lambda a: a.update(text=a.text.split(" ")[0]))
+
+  # Результат тестирования  
+  data = df_op_time_b38
+  my_mod = ols('duration_min ~ research_group + operation_step', data).fit()
+  aov_table = sm.stats.anova_lm(my_mod)
+  p = aov_table['PR(>F)'][0]
+
+  if p <= 0.05:
+      p_result = 'Распределение отличается по группам'
+  else:
+      p_result = 'Нет различий между группами'
+
+  result_text = [
+    html.P(f"Показатель:  Длительность каждого этапа операции", className="card-text"),
+    html.P("Результаты сравнения:", className="card-text"),
+    dbc.Table.from_dataframe(aov_table, striped=True, bordered=True, hover=True),
+    html.P(p_result, className="card-text"),
+  ]
+
+  return(dbc.Table.from_dataframe(total_table, striped=True, bordered=True, hover=True), 
+          fig, 
+          html.P(result_text, className="card-text")
+          )
+
+
 def register_callback(dashapp):
     @dashapp.callback([Output('html_filter_group','options'),
                       Output('html_filter_group','value')],
@@ -239,3 +528,19 @@ def register_callback(dashapp):
 
         elif filter_kf in['Срок наблюдения']:
           return get_observations_stat(filter_group)
+
+        elif filter_kf in['Общий койко-день']:
+          return get_b_days_stat(filter_group)
+
+        elif filter_kf in['Предоперационный койко-день']:
+          return get_b_days_before_stat(filter_group)
+
+        elif filter_kf in['Послеоперационный койко-день']:
+          return get_b_days_after_stat(filter_group)
+
+        elif filter_kf in['Общая длительность операции']:
+          return get_operations_stat(filter_group)
+
+        elif filter_kf in['Длительность каждого этапа операции']:
+          return get_operations_step_stat(filter_group)
+

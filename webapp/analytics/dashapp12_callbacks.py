@@ -24,12 +24,12 @@ def register_callback(dashapp):
       """
       Подготовка списка групп исследования
       """
-      research_group_otions = [{'label':group, 'value':group} for group in get_research_groups()]
+      research_group_options = [{'label':group, 'value':group} for group in get_research_groups()]
       research_group_values = get_research_groups()
       #print(research_group_otions)
       #print(research_group_values)
        #research_group_otions, 
-      return research_group_otions, research_group_values
+      return research_group_options, research_group_values
 
     @dashapp.callback(Output('html_output_table','children'),
                     [ Input('html_filter_sex', 'value' ), 
