@@ -17,6 +17,7 @@ from .db_tools import get_short_hist_data, get_asa
 from datetime import datetime
 from scipy.stats import ttest_ind
 from scipy.stats import chi2_contingency
+from scipy.stats import chi2
 from textwrap import dedent
 
 def get_side_statistics(filter_sex):
@@ -58,14 +59,17 @@ def get_side_statistics(filter_sex):
   contingency_table= [df_side_pivot] 
   stat, p, dof, expected = chi2_contingency(contingency_table)         
 
-  if p > 0.05:
-        p_result = 'Нет различий по полу'
+  critical = chi2.ppf(0.95, dof)
+  
+  if p > 0.05 and stat < critical:
+        p_result = 'Вывод: Нет различий по полу, с вероятностью 95%'
   else:
-        p_result = 'Есть различия по полу'
+        p_result = 'Вывод: Есть различия по полу, с вероятностью 95%'
 
   result_text = [
     html.P("Показатель: Сторона поражения", className="card-text"),
-    html.P(f"Результаты сравнения: хи-квадрат = {stat}, p-value: {round(p,5)}", className="card-text"),
+    html.P(f"Число степеней свободы: {dof}", className="card-text"),
+    html.P(f"Результаты сравнения: хи-квадрат = {round(stat,3)}, критическое = {round(critical,3)}, p-value: {round(p,5)}", className="card-text"),
     html.P(p_result, className="card-text"),
   ]
 
@@ -111,14 +115,17 @@ def get_asa_statistics(filter_sex):
   contingency_table= [df_asa_pivot]
   stat, p, dof, expected = chi2_contingency(contingency_table)         
 
-  if p > 0.05:
-        p_result = 'Нет различий по полу'
+  critical = chi2.ppf(0.95, dof)
+  
+  if p > 0.05 and stat < critical:
+        p_result = 'Нет различий по полу, с вероятностью 95%'
   else:
-        p_result = 'Есть различия по полу'
+        p_result = 'Есть различия по полу, с вероятностью 95%'
 
   result_text = [
     html.P("Показатель: ASA", className="card-text"),
-    html.P(f"Результаты сравнения: хи-квадрат = {round(stat, 3)}, p-value: {round(p,5)}", className="card-text"),
+    html.P(f"Число степеней свободы: {dof}", className="card-text"),
+    html.P(f"Результаты сравнения: хи-квадрат = {round(stat,3)}, критическое = {round(critical,3)}, p-value: {round(p,5)}", className="card-text"),
     html.P(p_result, className="card-text"),
   ]
 
