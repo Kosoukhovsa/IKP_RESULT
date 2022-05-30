@@ -39,7 +39,9 @@ def register_callback(dashapp):
         """"
         Формирование таблицы с основной статистикой
         """
-        print(filter_sex)
+        if filter_group is None:
+          filter_group = get_research_groups()
+          
         df_history = get_short_hist_data()
         df_history_selected = df_history[(df_history['research_group'].isin(filter_group)) & 
                                          (df_history['sex'].isin(filter_sex))]

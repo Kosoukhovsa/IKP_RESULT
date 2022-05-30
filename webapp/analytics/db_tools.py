@@ -305,3 +305,25 @@ def get_oper_logs():
         df_op_logs = pd.read_sql(sql_str_oper_logs, db.engine)
         return df_op_logs
 
+def get_operations():
+        sql_str_operations = """
+        select 
+        o.id ,
+        rg.description as research_group, -- Группа исследования
+        o.history_id ,
+        o.doctor_surgeon_id ,
+        d.fio 
+        from "Operation" o 
+        left join "Doctor" d on 
+        o.doctor_surgeon_id  = d.id 
+        left join "History" h on 
+        h.id = o.history_id and 
+        h.clinic_id = o.clinic_id
+        left join "ResearchGroup" rg on 
+        rg.id = h.research_group_id 
+        ;
+        """
+
+        df_operations = pd.read_sql(sql_str_operations, db.engine)
+        return df_operations
+

@@ -71,6 +71,11 @@ def create_app(object_name):
     from .analytics.dashapp22_callbacks import register_callback as register_callback_app22
     register_dashapps(app, 'Общая статистика по группам', 'dashapp2_2',layout_app_22, register_callback_app22)
 
+  # Добавленние аналитического приложения 7 - качественные показатели по группам
+    from .analytics.dashapp23_layout import layout as layout_app_23
+    from .analytics.dashapp23_callbacks import register_callback as register_callback_app23
+    register_dashapps(app, 'Общая статистика по группам', 'dashapp2_3',layout_app_23, register_callback_app23)
+
 
     return app
 
