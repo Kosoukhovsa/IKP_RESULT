@@ -26,6 +26,7 @@ class HistoryFilterForm(FlaskForm):
                               for clinic in Clinic.query.order_by(Clinic.id).all()]
         self.group_filter.choices=[(group.id, group.description)
                               for group in ResearchGroup.query.order_by(ResearchGroup.id).all()]
+        self.group_filter.choices.append((0, ''))
 
 # -- Форма историй болезни
 class HistoryMainForm(FlaskForm):
