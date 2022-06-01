@@ -27,15 +27,27 @@
             <!--Панель выборки историй болезни-->
         <div class="row">
           <div class="col">
-            <form class="form-inline my-2 p-2 bg-light text-muted justify-content-around" method="POST">
+            <form class="form  bg-light text-muted justify-content-around" method="POST">
               {{HistoryFilterForm.csrf_token()}}
-              <div class="form-group">
-                {{HistoryFilterForm.snils_filter.label(class="form-control-label mx-2")}}
-                {{HistoryFilterForm.snils_filter(class="form-control")}}
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  {{HistoryFilterForm.hist_number_filter.label(class="form-control-label mx-2")}}
+                  {{HistoryFilterForm.hist_number_filter(class="form-control")}}
+                </div>
+                <div class="form-group col-md-6">
+                  {{HistoryFilterForm.clinic_filter.label(class="form-control-label mx-2")}}
+                  {{HistoryFilterForm.clinic_filter(class="form-control")}}
+                </div>
               </div>
-              <div class="form-group">
-                {{HistoryFilterForm.clinic_filter.label(class="form-control-label mx-2")}}
-                {{HistoryFilterForm.clinic_filter(class="form-control")}}
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  {{HistoryFilterForm.group_filter.label(class="form-control-label mx-2")}}
+                  {{HistoryFilterForm.group_filter(class="form-control")}}
+                </div>
+                <div class="form-group col-md-6">
+                  {{HistoryFilterForm.snils_filter.label(class="form-control-label mx-2")}}
+                  {{HistoryFilterForm.snils_filter(class="form-control")}}
+                </div>
               </div>
                 {{HistoryFilterForm.submit_filter(class='btn btn-primary')}}
             </form>

@@ -142,11 +142,17 @@ def history_select():
     page = request.args.get('page',1,type=int)
 
     clinic_filter_id = session.get('clinic_filter_id')
+    hist_number_filter = session.get('hist_number_filter')
+    group_filter_id = session.get('group_filter_id')
     snils_filter_hash = session.get('snils_filter_hash')
     personal_data_list = session.get('personal_data_list')
     history_list = History.query.join(Patient, History.patient_id==Patient.id).order_by(History.date_in)
     if clinic_filter_id is not None:
         history_list = history_list.filter(History.clinic_id==clinic_filter_id)
+    if group_filter_id is not None:
+        history_list = history_list.filter(History.research_group_id==group_filter_id)
+    if hist_number_filter is not None and hist_number_filter != '':
+        history_list = history_list.filter(History.hist_number==hist_number_filter)
 
     if snils_filter_hash is not None:
         patient = Patient.query.filter(Patient.snils_hash==snils_filter_hash).first()
@@ -168,6 +174,23 @@ def history_select():
         if FilterForm.clinic_filter.data == 0:
             session['clinic_filter_id'] = None
 
+        if FilterForm.group_filter.data != 0:
+# Выбрано значение ( не All)
+            history_list = history_list.filter(History.research_group_id==FilterForm.group_filter.data)
+            session['group_filter_id']= FilterForm.group_filter.data
+# Выбрано значение ALL - снять фильтр
+        if FilterForm.group_filter.data == 0:
+            session['group_filter_id'] = None
+
+        if FilterForm.hist_number_filter.data != '' and FilterForm.hist_number_filter.data is not None:
+# Выбрано значение ( не All)
+            history_list = history_list.filter(History.hist_number==FilterForm.hist_number_filter.data)
+            session['hist_number_filter']= FilterForm.hist_number_filter.data
+# Выбрано значение ALL - снять фильтр
+        if FilterForm.hist_number_filter.data == '' or FilterForm.hist_number_filter.data is None:
+            session['hist_number_filter'] = None
+
+
         if FilterForm.snils_filter.data != '':
 # Выбрано значение ( не All)
             digest = md5(FilterForm.snils_filter.data.lower().encode('utf-8')).hexdigest()
@@ -178,11 +201,13 @@ def history_select():
             else:
                 flash('Пациента с указанным СНИЛС не существует', category='warning')
                 session['snils_filter_hash'] = None
+                FilterForm.snils_filter.data = ''
 
 
 # Выбрано значение ALL - снять фильтр
         if FilterForm.snils_filter.data == '':
             session['snils_filter_hash'] = None
+
 
         pagination =  history_list.paginate(page,5,error_out=False)
         histories = pagination.items
