@@ -6,15 +6,17 @@ from wtforms import ValidationError
 from wtforms.fields.html5 import DateField, DateTimeField, TimeField
 from wtforms.fields import TextField
 from wtforms.validators import ValidationError, DataRequired, Optional, Email, EqualTo, Length, Regexp, NumberRange
-from .models import Patient
+#from .models import History
 from ..main.models import Clinic, ResearchGroup, Reason, DiagnoseItem, Doctor, Event, Prosthesis, IndicatorDef,\
                             Complication
 
 
 # -- Форма фильтрации историй болезни
 class HistoryFilterForm(FlaskForm):
-    snils_filter = StringField('СНИЛС пациента', validators=[DataRequired()])
+    hist_number_filter = StringField('Номер истории болезни', validators=[Optional()])
+    snils_filter = StringField('СНИЛС пациента', validators=[Optional()])
     clinic_filter = SelectField('Клиника', coerce = int, validators=[DataRequired()])
+    group_filter = SelectField('Группа исследования', coerce = int, validators=[Optional()])
     submit_filter = SubmitField('Фильтр')
 
 
@@ -22,6 +24,8 @@ class HistoryFilterForm(FlaskForm):
         super(HistoryFilterForm, self).__init__(*args, **kwargs)
         self.clinic_filter.choices=[(clinic.id, clinic.description)
                               for clinic in Clinic.query.order_by(Clinic.id).all()]
+        self.group_filter.choices=[(group.id, group.description)
+                              for group in ResearchGroup.query.order_by(ResearchGroup.id).all()]
 
 # -- Форма историй болезни
 class HistoryMainForm(FlaskForm):
