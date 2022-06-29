@@ -82,15 +82,14 @@ def download_report():
         return send_file('../ikp_report.html', as_attachment=True)
     except Exception as e:
         flash(f'Произошла ошибка: {e}', category="danger")
-<<<<<<< HEAD
-        return redirect(url_for('main.index'))
-
-=======
+#<<<<<<< HEAD
+#        return redirect(url_for('main.index'))
+#=======
         return redirect(url_for('main.index'))  
 
 
         
->>>>>>> 42290f026dd11bd2cfd22caaab844b97e64cc7f7
+#>>>>>>> 42290f026dd11bd2cfd22caaab844b97e64cc7f7
 # Загрузка персональной информации из файла
 @history_blueprint.route('/load_personal_data', methods = ['GET','POST'])
 @login_required
