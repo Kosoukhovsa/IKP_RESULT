@@ -66,6 +66,11 @@ def get_age_stat(filter_group):
   result_text = [
     html.P("Показатель: Возраст", className="card-text"),
     html.P(f"Результаты сравнения возраста по группам: ", className="card-text"),
+    html.P(f"df: первая строка - кол-во групп, вторая - общее кол-во наблюдений минус колв-во групп ", className="card-text"),
+    html.P(f"sum_sq: первая строка - межгрупповая дисперсия, вторая строка - внутригрупповая дисперсия", className="card-text"),
+    html.P(f"mean_sq: отношение sum_sq/df по каждой строке", className="card-text"),
+    html.P(f"F: отношение  межгрупповая дисперсия/внутригрупповая дисперсия", className="card-text"),
+    html.P(f"PR(>F): p-value. Если значение < 0,05 то с вероятностью 95% есть различия между группами", className="card-text"),
     dbc.Table.from_dataframe(aov_table, striped=True, bordered=True, hover=True),
     html.P(p_result, className="card-text"),
   ]
@@ -137,6 +142,11 @@ def get_ind_stat(filter_group, ind_id):
   result_text = [
     html.P(f"Показатель: {ind_text}", className="card-text"),
     html.P("Результаты сравнения:"),
+    html.P(f"df: первая строка - кол-во групп, вторая - общее кол-во наблюдений минус колв-во групп ", className="card-text"),
+    html.P(f"sum_sq: первая строка - межгрупповая дисперсия, вторая строка - внутригрупповая дисперсия", className="card-text"),
+    html.P(f"mean_sq: отношение sum_sq/df по каждой строке", className="card-text"),
+    html.P(f"F: отношение  межгрупповая дисперсия/внутригрупповая дисперсия", className="card-text"),
+    html.P(f"PR(>F): p-value. Если значение < 0,05 то с вероятностью 95% есть различия между группами", className="card-text"),
     dbc.Table.from_dataframe(aov_table, striped=True, bordered=True, hover=True),
     html.P(p_result, className="card-text"),
   ]
@@ -189,6 +199,11 @@ def get_observations_stat(filter_group):
   result_text = [
     html.P(f"Показатель: Срок наблюдения в месяцах", className="card-text"),
     html.P("Результаты сравнения:", className="card-text"),
+    html.P(f"df: первая строка - кол-во групп, вторая - общее кол-во наблюдений минус колв-во групп ", className="card-text"),
+    html.P(f"sum_sq: первая строка - межгрупповая дисперсия, вторая строка - внутригрупповая дисперсия", className="card-text"),
+    html.P(f"mean_sq: отношение sum_sq/df по каждой строке", className="card-text"),
+    html.P(f"F: отношение  межгрупповая дисперсия/внутригрупповая дисперсия", className="card-text"),
+    html.P(f"PR(>F): p-value. Если значение < 0,05 то с вероятностью 95% есть различия между группами", className="card-text"),
     dbc.Table.from_dataframe(aov_table_monthes_observ, striped=True, bordered=True, hover=True),
     html.P(p_result, className="card-text"),
   ]
@@ -246,6 +261,11 @@ def get_b_days_stat(filter_group):
   result_text = [
     html.P(f"Показатель:  Общий койко-день", className="card-text"),
     html.P("Результаты сравнения:", className="card-text"),
+    html.P(f"df: первая строка - кол-во групп, вторая - общее кол-во наблюдений минус колв-во групп ", className="card-text"),
+    html.P(f"sum_sq: первая строка - межгрупповая дисперсия, вторая строка - внутригрупповая дисперсия", className="card-text"),
+    html.P(f"mean_sq: отношение sum_sq/df по каждой строке", className="card-text"),
+    html.P(f"F: отношение  межгрупповая дисперсия/внутригрупповая дисперсия", className="card-text"),
+    html.P(f"PR(>F): p-value. Если значение < 0,05 то с вероятностью 95% есть различия между группами", className="card-text"),
     dbc.Table.from_dataframe(aov_table_days_all, striped=True, bordered=True, hover=True),
     html.P(p_result, className="card-text"),
   ]
@@ -303,6 +323,11 @@ def get_b_days_before_stat(filter_group):
   result_text = [
     html.P(f"Показатель:  Предоперационный койко-день", className="card-text"),
     html.P("Результаты сравнения:", className="card-text"),
+    html.P(f"df: первая строка - кол-во групп, вторая - общее кол-во наблюдений минус колв-во групп ", className="card-text"),
+    html.P(f"sum_sq: первая строка - межгрупповая дисперсия, вторая строка - внутригрупповая дисперсия", className="card-text"),
+    html.P(f"mean_sq: отношение sum_sq/df по каждой строке", className="card-text"),
+    html.P(f"F: отношение  межгрупповая дисперсия/внутригрупповая дисперсия", className="card-text"),
+    html.P(f"PR(>F): p-value. Если значение < 0,05 то с вероятностью 95% есть различия между группами", className="card-text"),
     dbc.Table.from_dataframe(aov_table_days_all, striped=True, bordered=True, hover=True),
     html.P(p_result, className="card-text"),
   ]
@@ -360,6 +385,11 @@ def get_b_days_after_stat(filter_group):
   result_text = [
     html.P(f"Показатель:  Послеоперационный койко-день", className="card-text"),
     html.P("Результаты сравнения:", className="card-text"),
+    html.P(f"df: первая строка - кол-во групп, вторая - общее кол-во наблюдений минус колв-во групп ", className="card-text"),
+    html.P(f"sum_sq: первая строка - межгрупповая дисперсия, вторая строка - внутригрупповая дисперсия", className="card-text"),
+    html.P(f"mean_sq: отношение sum_sq/df по каждой строке", className="card-text"),
+    html.P(f"F: отношение  межгрупповая дисперсия/внутригрупповая дисперсия", className="card-text"),
+    html.P(f"PR(>F): p-value. Если значение < 0,05 то с вероятностью 95% есть различия между группами", className="card-text"),
     dbc.Table.from_dataframe(aov_table_days_all, striped=True, bordered=True, hover=True),
     html.P(p_result, className="card-text"),
   ]
@@ -408,7 +438,7 @@ def get_operations_stat(filter_group):
   # Результат тестирования  
   data = df_op_time_b38_gr[(df_op_time_b38_gr['research_group'].isin(filter_group))]
   my_mod = ols('duration_min ~ research_group', data).fit()
-  aov_table = sm.stats.anova_lm(my_mod)
+  aov_table = sm.stats.anova_lm(my_mod,  )
   p = aov_table['PR(>F)'][0]
 
   if p <= 0.05:
@@ -419,6 +449,11 @@ def get_operations_stat(filter_group):
   result_text = [
     html.P(f"Показатель:  Общая длительность операции", className="card-text"),
     html.P("Результаты сравнения:", className="card-text"),
+    html.P(f"df: первая строка - кол-во групп, вторая - общее кол-во наблюдений минус колв-во групп ", className="card-text"),
+    html.P(f"sum_sq: первая строка - межгрупповая дисперсия, вторая строка - внутригрупповая дисперсия", className="card-text"),
+    html.P(f"mean_sq: отношение sum_sq/df по каждой строке", className="card-text"),
+    html.P(f"F: отношение  межгрупповая дисперсия/внутригрупповая дисперсия", className="card-text"),
+    html.P(f"PR(>F): p-value. Если значение < 0,05 то с вероятностью 95% есть различия между группами", className="card-text"),
     dbc.Table.from_dataframe(aov_table, striped=True, bordered=True, hover=True),
     html.P(p_result, className="card-text"),
   ]
@@ -465,7 +500,7 @@ def get_operations_step_stat(filter_group):
   # Результат тестирования  
   data = df_op_time_b38
   my_mod = ols('duration_min ~ research_group + operation_step', data).fit()
-  aov_table = sm.stats.anova_lm(my_mod)
+  aov_table = sm.stats.anova_lm(my_mod, type=2)
   p = aov_table['PR(>F)'][0]
 
   if p <= 0.05:
@@ -476,6 +511,11 @@ def get_operations_step_stat(filter_group):
   result_text = [
     html.P(f"Показатель:  Длительность каждого этапа операции", className="card-text"),
     html.P("Результаты сравнения:", className="card-text"),
+    html.P(f"df: первая строка - кол-во групп, вторая - общее кол-во наблюдений минус колв-во групп ", className="card-text"),
+    html.P(f"sum_sq: первая строка - межгрупповая дисперсия, вторая строка - внутригрупповая дисперсия", className="card-text"),
+    html.P(f"mean_sq: отношение sum_sq/df по каждой строке", className="card-text"),
+    html.P(f"F: отношение  межгрупповая дисперсия/внутригрупповая дисперсия", className="card-text"),
+    html.P(f"PR(>F): p-value. Если значение < 0,05 то с вероятностью 95% есть различия между группами", className="card-text"),
     dbc.Table.from_dataframe(aov_table, striped=True, bordered=True, hover=True),
     html.P(p_result, className="card-text"),
   ]
