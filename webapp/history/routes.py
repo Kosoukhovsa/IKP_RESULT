@@ -43,6 +43,7 @@ from .models import (Diagnose, History, HistoryEvent, IndicatorValue,
                      Operation, OperationComp, OperationLog, Patient)
 
 from ..analytics import db_tools
+import xlsxwriter
 
 history_blueprint = Blueprint('history',
                             __name__,
@@ -52,16 +53,33 @@ tempdirectory = tempfile.gettempdir()
 
 @history_blueprint.route('/download_data', methods = ['GET','POST'])
 @login_required
-def download_data():
-    flash('Выгрузка формируется. Подождите.', category="info")
+def download_data():   
 
-    hist_data = db_tools.get_short_hist_data()
-    file_path = os.path.join(os.path.dirname(__file__),'Histories.xlsx')
-    print(os.path.dirname(__file__))
-    print(file_path) 
+    hist_data = db_tools.get_short_hist_data() # Истории болезни (заголовки)
+    asa_data = db_tools.get_asa() # ASA
+    b_days_data = db_tools.get_b_days() # Койко-дни
+    ind_values_data = db_tools.get_ind_values() # Показатели
+    observations_data = db_tools.get_observations() # Наблюдения
+    oper_logs_data = db_tools.get_oper_logs() # Журнал операций
+    oper_data = db_tools.get_operations() # Операции
+    
+    ikp_data_path = os.path.join(os.path.dirname(__file__),'IKP_DATA.xlsx')
+    
+    #hist_data_path = os.path.join(os.path.dirname(__file__),'IKP_Histories.xlsx')
+
     try:
-        hist_data.to_excel(file_path, engine='openpyxl')
-        return send_file(file_path, as_attachment=True)
+        with pd.ExcelWriter(ikp_data_path, engine='xlsxwriter') as writer:
+            hist_data.to_excel(writer, sheet_name='histories')
+            asa_data.to_excel(writer, sheet_name='asa')
+            b_days_data.to_excel(writer, sheet_name='b_days')
+            ind_values_data.to_excel(writer, sheet_name='indicators')
+            observations_data.to_excel(writer, sheet_name='observations')
+            oper_logs_data.to_excel(writer, sheet_name='operation_logs')
+            oper_data.to_excel(writer, sheet_name='operations')
+
+        flash('Выгрузка завершена.', category="info")
+        return send_file(ikp_data_path, as_attachment=True)        
+
     except Exception as e:
         flash(f'Произошла ошибка: {e}', category="danger")
         return redirect(url_for('main.index'))  
