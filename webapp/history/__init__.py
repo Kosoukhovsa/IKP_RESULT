@@ -7,6 +7,7 @@ from webapp import db
 from sqlalchemy import and_, or_, not_
 from datetime import datetime, timedelta
 
+
 def create_module(app, **kwargs):
     from .routes import history_blueprint
     app.register_blueprint(history_blueprint)

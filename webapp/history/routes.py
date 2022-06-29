@@ -42,11 +42,29 @@ from .forms import (Ambulance3SubForm1, Ambulance3SubForm2, Ambulance3SubForm3,
 from .models import (Diagnose, History, HistoryEvent, IndicatorValue,
                      Operation, OperationComp, OperationLog, Patient)
 
+from ..analytics import db_tools
+
 history_blueprint = Blueprint('history',
                             __name__,
                             template_folder='..templates/history')
 
 tempdirectory = tempfile.gettempdir()
+
+@history_blueprint.route('/download_data', methods = ['GET','POST'])
+@login_required
+def download_data():
+    flash('Выгрузка формируется. Подождите.', category="info")
+
+    hist_data = db_tools.get_short_hist_data()
+    file_path = os.path.join(os.path.dirname(__file__),'Histories.xlsx')
+    print(os.path.dirname(__file__))
+    print(file_path) 
+    try:
+        hist_data.to_excel(file_path, engine='openpyxl')
+        return send_file(file_path, as_attachment=True)
+    except Exception as e:
+        flash(f'Произошла ошибка: {e}', category="danger")
+        return redirect(url_for('main.index'))  
 
 
 @history_blueprint.route('/download_report', methods = ['GET','POST'])
@@ -65,6 +83,8 @@ def download_report():
     except Exception as e:
         flash(f'Произошла ошибка: {e}', category="danger")
         return redirect(url_for('main.index'))  
+
+
         
 # Загрузка персональной информации из файла
 @history_blueprint.route('/load_personal_data', methods = ['GET','POST'])

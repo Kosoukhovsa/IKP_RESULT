@@ -68,6 +68,8 @@ def get_side_statistics(filter_sex):
 
   result_text = [
     html.P("Показатель: Сторона поражения", className="card-text"),
+    html.P("Метод тестирования: хи-квадрат", className="card-text"),
+    html.P("Доверительный интервал: 0,05 ", className="card-text"),
     html.P(f"Число степеней свободы: {dof}", className="card-text"),
     html.P(f"Результаты сравнения: хи-квадрат = {round(stat,3)}, критическое = {round(critical,3)}, p-value: {round(p,5)}", className="card-text"),
     html.P(p_result, className="card-text"),
@@ -124,6 +126,8 @@ def get_asa_statistics(filter_sex):
 
   result_text = [
     html.P("Показатель: ASA", className="card-text"),
+    html.P("Метод тестирования: хи-квадрат", className="card-text"),
+    html.P("Доверительный интервал: 0,05 ", className="card-text"),
     html.P(f"Число степеней свободы: {dof}", className="card-text"),
     html.P(f"Результаты сравнения: хи-квадрат = {round(stat,3)}, критическое = {round(critical,3)}, p-value: {round(p,5)}", className="card-text"),
     html.P(p_result, className="card-text"),
