@@ -134,7 +134,7 @@
       <input id="diagnos_id" type = "hidden" class="form-control" name="diagnos_id" type="number" value={{item.id}}>
       <td>{{item.description}}</td>
       <td>{{item.mkb10}}</td>
-      <td>{{item.date_created}}</td>
+      <td>{{item.date_created.strftime('%d-%m-%Y')}}</td>
       <td>
       <a class="btn btn-danger" href="{{ url_for('history.diagnose_delete', h=h, d=item.id, pill=pill) }}">Удалить</a>
       </td>
@@ -167,16 +167,16 @@
       <td>
         {% if ambulance_event.event_type==2 %}
         <a href="{{ url_for('history.ambulance_edit', h=h, h_e=ambulance_event.event_id,
-                            e_type=ambulance_event.event_type, pill=1) }}">{{ambulance_event.event_date}}</a>
+                            e_type=ambulance_event.event_type, pill=1) }}">{{ambulance_event.event_date.strftime('%d-%m-%Y')}}</a>
 
         {% elif ambulance_event.event_type==9 or ambulance_event.event_type==10 %}
         <a href="{{ url_for('history.ambulance3_edit', h=h, hospital_id=ambulance_event.hospital_id,
                             operation_id = ambulance_event.operation_id, h_e=ambulance_event.event_id,
-                            e_type=ambulance_event.event_type, pill=1) }}">{{ambulance_event.event_date}}</a>
+                            e_type=ambulance_event.event_type, pill=1) }}">{{ambulance_event.event_date.strftime('%d-%m-%Y')}}</a>
         {% elif ambulance_event.event_type==11 %}
         <a href="{{ url_for('history.ambulance12_edit', h=h, hospital_id=ambulance_event.hospital_id,
                             operation_id = ambulance_event.operation_id, h_e=ambulance_event.event_id,
-                            e_type=ambulance_event.event_type, pill=1) }}">{{ambulance_event.event_date}}</a>
+                            e_type=ambulance_event.event_type, pill=1) }}">{{ambulance_event.event_date.strftime('%d-%m-%Y')}}</a>
 
         {% endif  %}
 
@@ -214,7 +214,7 @@
 
       <td>
         <a href="{{ url_for('history.hospital_edit', h=h, h_e=hospital.event_id,
-                            pill=1) }}">{{hospital.event_date_begin}}</a>
+                            pill=1) }}">{{hospital.event_date_begin.strftime('%d-%m-%Y')}}</a>
       </td>
       <td>
         <a>{{hospital.event_date_end}}</a>
