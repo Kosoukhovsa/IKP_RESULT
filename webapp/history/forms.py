@@ -306,11 +306,11 @@ class OperationsSubForm1(FlaskForm):
     submit = SubmitField('Сохранить')
 
     def __init__(self, *args, **kwargs):
-        super(OperationsSubForm1, self).__init__(*args, **kwargs)
-        self.doctor_assistant.choices=[(doctor_assistant.id, doctor_assistant.fio)
-                              for doctor_assistant in Doctor.query.all()]
+        super(OperationsSubForm1, self).__init__(*args, **kwargs)        
         self.doctor_surgeon.choices=[(doctor_surgeon.id, doctor_surgeon.fio)
                               for doctor_surgeon in Doctor.query.all()]
+        self.doctor_assistant.choices=[(doctor_assistant.id, doctor_assistant.fio)
+                              for doctor_assistant in Doctor.query.all()]
 
 # -- Операции: Показатели операции
 class OperationsSubForm2(FlaskForm):

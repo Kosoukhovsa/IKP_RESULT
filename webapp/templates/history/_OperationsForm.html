@@ -2,9 +2,9 @@
 
 {% macro OperationsSubForm1(OperationsSubForm1, pill) %}
     <form class="form-inline bg-light justify-content-around" method="POST">
-      {{OperationsSubForm1.csrf_token()}}
-      {{ m.render_field(OperationsSubForm1.doctor_assistant) }}
+      {{OperationsSubForm1.csrf_token()}}      
       {{ m.render_field(OperationsSubForm1.doctor_surgeon) }}
+      {{ m.render_field(OperationsSubForm1.doctor_assistant) }}
       {{ m.render_field(OperationsSubForm1.operation_order) }}
       <div class="row">
         <div class="col">
