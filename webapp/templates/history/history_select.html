@@ -76,9 +76,13 @@
                   </td>
                   <td>{{h.fio}}</td>
                   <td>{{h.snils}}</td>
-                  <td>{{h.date_in}}</td>
-                  <td>{{h.date_research_in}}</td>
-                  <td>{{h.date_research_out}}</td>
+                  <td>{{h.date_in.strftime('%d-%m-%Y')}}</td>
+                  {% if h.date_research_in %}
+                  <td>{{h.date_research_in.strftime('%d-%m-%Y')}}</td>
+                  {% endif %}   
+                  {% if h.date_research_out %}
+                  <td>{{h.date_research_out.strftime('%d-%m-%Y')}}</td>
+                  {% endif %} 
                 </tr>
                 {% endfor %}
               </tbody>

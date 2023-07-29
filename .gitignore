@@ -3,4 +3,5 @@ __pycache__
 .env
 env*
 ikp_report.html
+venv/*
 rs_backup

@@ -7,7 +7,7 @@
       {{ m.render_field(OperationsSubForm1.doctor_assistant) }}
       {{ m.render_field(OperationsSubForm1.operation_order) }}
       <div class="row">
-        <div class="col">
+        <div class="col">OperationsSubForm5
           {{OperationsSubForm1.submit(class='btn btn-primary')}}
         </div>
       </div>
@@ -171,7 +171,7 @@
                               operation_id=operation.id,
                               post_operation_id=item.post_operation_id,
                               e_type_id=item.e_type_id,
-                              pill=1) }}">{{item.date_begin}}</a>
+                              pill=1) }}">{{item.date_begin.strftime('%d-%m-%Y')}}</a>
       </td>
       <td>
         <a>{{item.e_type_description}}</a>
@@ -206,7 +206,7 @@
     {% for item in items %}
     <tr>
       <td>{{item.description}}</td>
-      <td>{{item.date_begin}}</td>
+      <td>{{item.date_begin.strftime('%d-%m-%Y')}}</td>
       <td>
       <a class="btn btn-danger" href="{{ url_for('history.operation_comp_delete', h=history.id, h_e=h_e, operation_id=operation.id, operation_comp_id=item.id, pill=pill) }}">Удалить</a>
       </td>
