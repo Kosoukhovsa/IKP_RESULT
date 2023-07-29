@@ -34,6 +34,6 @@ class ProductionConfig(Config):
     #SQLALCHEMY_DATABASE_URI = 'postgres://'
     # БД на HEROKU
     #SQLALCHEMY_DATABASE_URI = 'postgres://sqdieqjwaeoagh:71f685cb5ad5c30d7c335e087ab918791a7c5b946b1a1be7c183c0679307b381@ec2-54-216-48-43.eu-west-1.compute.amazonaws.com:5432/d1e5qki0kv7tub'
-    # БД из бекап 
-    #SQLALCHEMY_DATABASE_URI = 'postgres://postgres:12345qwz@localhost:5433/ikp_restore'
+    # БД из бекап
+    #SQLALCHEMY_DATABASE_URI = 'postgres://postgres:12345qwz@localhost:5432/IKP_DATA'
     SQLALCHEMY_DATABASE_URI = f'postgres://{Config.DB_USER}:{Config.DB_USER_PASSWORD}@localhost:5432/ikp_data'
